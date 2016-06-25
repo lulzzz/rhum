@@ -1,0 +1,98 @@
+<!doctype html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<title>Rhum - {{ node_id }}</title>
+<head>
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<script src="http://d3js.org/d3.v2.min.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+
+<script type="text/javascript">
+JSONPush = function() {
+    $.ajax({
+        url: "/api/update_queue",
+        type: "POST",
+        data: {
+            uid: "{{node_id}}",
+            // Grab the current values of the HTML forms as inputs for the JSON POST
+            photo1: photo1.valueAsNumber,
+            photo2: photo1.valueAsNumber,
+            smc1: smc1.valueAsNumber,
+            smc2: smc2.valueAsNumber,
+            smc3: smc3.valueAsNumber,
+            smc4: smc4.valueAsNumber,
+            lights_on: lights_on.valueAsNumber,
+            lights_off: lights_off.valueAsNumber,
+            watering: watering.valueAsNumber,
+            cycle: cycle.valueAsNumber
+        },
+        dataType: "text/json",
+        success: function (result) {
+            switch (result) {
+                case true:
+                    processResponse(result);
+                    break;
+                default:
+                    resultDiv.html(result);
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+        alert(xhr.status);
+        alert(thrownError);
+        }
+    });
+};
+
+Refresh = function() {
+    location.reload();
+};
+
+</script>
+</head>
+<body>
+<div id="resultDivContainer"></div>
+<div data-role="page">
+  <div data-role="header">
+    <h1> Rhum  Panel - {{node_id}} </h1>
+  </div>
+
+  <div data-role="main" class="ui-content">
+    <form method="post" action="javascript:JSONPush()">
+      <label for="watering">Watering Time (s): </label>
+      <input type="range" name="watering" id="watering" value="{{watering}}" min="0" max="60">
+      <label for="cycle">Cycle Time (s): </label>
+      <input type="range" name="cycle" id="cycle" value="{{cycle}}" min="0" max="300">
+      <label for="smc1">Soil 1 (%): </label>
+      <input type="range" name="smc1" id="smc1" value="{{smc1}}" min="0" max="100">
+      <label for="smc2">Soil 2 (%): </label>
+      <input type="range" name="smc2" id="smc2" value="{{smc2}}" min="0" max="100">
+      <label for="smc3">Soil 3 (%): </label>
+      <input type="range" name="smc3" id="smc3" value="{{smc3}}" min="0" max="100">
+      <label for="smc4">Soil 4 (%): </label>
+      <input type="range" name="smc4" id="smc4" value="{{smc4}}" min="0" max="100">
+      <label for="photo1">Lights 1(%): </label>
+      <input type="range" name="photo1" id="photo1" value="{{photo1}}" min="0" max="100">
+      <label for="photo2">Lights 2 (%): </label>
+      <input type="range" name="photo2" id="photo2" value="{{photo2}}" min="0" max="100">
+      <label for="lights_on">Lights On (Hours): </label>
+      <input type="range" name="lights_on" id="lights_on" value="{{lights_on}}" min="0" max="24">
+      <label for="lights_off">Lights Off (Hours): </label>
+      <input type="range" name="lights_off" id="lights_off" value="{{lights_off}}" min="0" max="24">
+      <input type="submit" data-inline="true" value="Submit">
+    </form>
+    <form method="post" action="javascript:Refresh()">
+      <input type="submit" data-inline="true" value="Refresh">
+    </form>
+    <form method="post" action="demoform.asp">
+      <label for="switch">Lights Override</label>
+      <input type="checkbox" data-role="flipswitch" name="switch" id="switch">
+    </form>
+    </div>
+    {{snapshot}}
+</div>
+</body>
+</html>

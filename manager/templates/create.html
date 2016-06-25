@@ -1,0 +1,75 @@
+<!doctype html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<title>Hydrocon - {{ node_id }}</title>
+<head>
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico')}}">
+<script type="text/javascript"
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<script src="http://d3js.org/d3.v2.min.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+
+<script type="text/javascript">
+JSONPush = function() {
+    var resultDiv = $("#resultDivContainer");
+    var lights_val = lights.valueAsNumber;
+    var watering_time_val = watering_time.valueAsNumber;
+    var cycle_time_val = cycle_time.valueAsNumber;
+    $.ajax({
+        url: "/api/update_queue",
+        type: "POST",
+        data: {
+            uid: "{{node_id}}",
+            task: {
+                lights: lights_val,
+                watering_time: watering_time_val,
+                cycle_time: cycle_time_val
+            }
+        },
+        dataType: "json",
+        success: function (result) {
+            switch (result) {
+                case true:
+                    processResponse(result);
+                    break;
+                default:
+                    resultDiv.html(result);
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+        alert(xhr.status);
+        alert(thrownError);
+        }
+    });
+};
+
+</script>
+</head>
+<body>
+<div id="resultDivContainer"></div>
+<div data-role="page">
+  <div data-role="header">
+    <h1>Control Panel - {{node_id}} </h1>
+  </div>
+
+  <div data-role="main" class="ui-content">
+    <form method="post" action="javascript:JSONPush()">
+      <label for="watering_time">Watering Time (s): </label>
+      <input type="range" name="watering_time" id="watering_time" value="50" min="0" max="60">
+      <label for="cycle_time">Cycle Time (s): </label>
+      <input type="range" name="cycle_time" id="cycle_time" value="50" min="0" max="60">
+      <label for="lights">Lights (%): </label>
+      <input type="range" name="lights" id="lights" value="50" min="0" max="100">
+      <input type="submit" data-inline="true" value="Submit">
+    </form>
+    <form method="post" action="demoform.asp">
+      <label for="switch">Lights Override</label>
+      <input type="checkbox" data-role="flipswitch" name="switch" id="switch">
+    </form>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
+<script type="text/javascript">
+Redirect = function() {
+    console.log("test");
+    var node_id = node_name.value
+    console.log(node_id);
+    window.location.href = '/node/' + node_id;
+};
+</script>
+</head>
+
+<body>
+<div data-role="page">
+  <div data-role="header">
+  <h1>RHUM</h1>
+  </div>
+  <div data-role="main" class="ui-content">
+    <form method="post" action="javascript:Redirect()">
+      <div class="ui-field-contain">
+        <label for="node_name">Node Name:</label>
+        <input type="text" name="node_name" id="node_name">       
+      </div>
+      <input type="submit" data-inline="true" value="Submit">
+    </form>
+  </div>
+</div>
+</body>
+</html>
+

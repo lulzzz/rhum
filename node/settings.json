@@ -1,0 +1,16 @@
+{
+    "lights_off": 24, 
+    "lights_on": 14, 
+    "overhead_level": 49, 
+    "s3": 29, 
+    "s2": 29, 
+    "s1": 30, 
+    "s4": 28, 
+    "p": 26, 
+    "time": 19.717398793333334, 
+    "soil_4": 65, 
+    "soil_2": 50, 
+    "soil_3": 31, 
+    "ambient_min": 80, 
+    "soil_1": 15
+}

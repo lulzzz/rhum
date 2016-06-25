@@ -1,0 +1,15 @@
+# 
+
+# deb cdrom:[Debian GNU/Linux 7.8.0 _Wheezy_ - Official i386 xfce-CD Binary-1 20150110-13:31]/ wheezy main
+
+#deb cdrom:[Debian GNU/Linux 7.8.0 _Wheezy_ - Official i386 xfce-CD Binary-1 20150110-13:31]/ wheezy main
+
+deb http://ftp.us.debian.org/debian/ wheezy main contrib non-free
+deb-src http://ftp.us.debian.org/debian/ wheezy main contrib non-free
+
+deb http://security.debian.org/ wheezy/updates main
+deb-src http://security.debian.org/ wheezy/updates main
+
+# wheezy-updates, previously known as 'volatile'
+deb http://ftp.us.debian.org/debian/ wheezy-updates main
+deb-src http://ftp.us.debian.org/debian/ wheezy-updates main
