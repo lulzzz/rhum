@@ -3,6 +3,9 @@
 # WARNING: This software makes significant changes to the system behavior
 # DISCLAIMER: This software is distributed with no warranty.
 
+#
+cp -r libraries/* /usr/share/arduino/libraries
+
 # APT Packages
 read -p "Update APT dependencies? [y/n] " ans
 if [ $ans = y -o $ans = Y -o $ans = yes -o $ans = Yes -o $ans = YES ]
