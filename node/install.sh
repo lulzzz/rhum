@@ -10,7 +10,7 @@ if [ $ans = y -o $ans = Y -o $ans = yes -o $ans = Yes -o $ans = YES ]
         echo "Installing dependencies via mirror ..."
         cp conf/sources.list /etc/apt/
         apt-get update
-        apt-get upgrade -y -qq =
+        apt-get upgrade -y -qq
         apt-get install unzip -y -qq
         apt-get install build-essential -y -qq
         apt-get install python-dev -y -qq
