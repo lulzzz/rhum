@@ -5,6 +5,8 @@
 
 #
 cp -r libraries/* /usr/share/arduino/libraries
+cp conf/mcgill.cfg /etc/network/interfaces.d/
+cp conf/mcgill.conf /etc/wpa_supplicant/
 
 # APT Packages
 read -p "Update APT dependencies? [y/n] " ans
