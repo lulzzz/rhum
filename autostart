@@ -3,6 +3,6 @@
 # 1. Navigates to the PATH
 # 2. Forces the screen to remain on
 # 3. Starts the app
-cd /usr/share/rhum/node
-python node.py > log.txt
+cd /usr/share/rhum/manager
+python manager.py > log.txt
 pkill -9 python
