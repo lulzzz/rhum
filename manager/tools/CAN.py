@@ -52,7 +52,7 @@ class Gateway:
         else:
             return input
 
-    def parse(self, interval=1.0, chars=256, force_read=False): 
+    def poll(self, interval=1.0, chars=256, force_read=False): 
         try:
             s = self.port.readline() #!TODO Need to handle very highspeed controllers, i.e. backlog
             print("SERIAL_READ: %s" % s.strip('\n')) #!DEBUG

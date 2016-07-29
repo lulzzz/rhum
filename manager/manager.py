@@ -37,7 +37,7 @@ class Manager:
         """
         while self.threads_active == True:
             try:
-                d = self.controller.parse() # Grab the latest response from the controller
+                d = self.gateway.poll() # Grab the latest response from the controller
                 if d is None:
                     self.log_msg("CHECKSUM: FAILED")
                 else:
