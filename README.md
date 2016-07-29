@@ -6,14 +6,17 @@
 
 ## Hardware
 
-### Node
+### Manager
 1. 1x Power Button - 15/32"
 2. 1x CAN (4-pin) - 3/4"
 3. 1x 12V Power Connection (2-pin) - 3/4"
 4. 1x LAN (RJ45) - 13/16"
 5. 2x WiFi Antennae - 1/4"
 
-### Tray
+### Node
+Each Node is an individual controller in the greenhouse which is part of the CAN
+
+#### Mk-1
 1. 1x Sensor Array (6-pin)- 3/4"
 2. 2x CAN (4-pin) - 3/4"
 3. 1x Pump Power (sealing clamp) - 15/32"
