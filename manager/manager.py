@@ -29,11 +29,11 @@ class Manager:
         try:
             self.poll_task = Monitor(cherrypy.engine, self.poll, frequency=self.config['poll_freq']).subscribe()
         except Exception as error:
-            self.log_msg('ENGINE', 'Error: %s' % str(error), important=True)
+            self.log_msg('ENGINE', 'Error: %s' % str(error))
 
     def log_msg(self, header, msg):
         """
-        Saves important messages to logfile
+        Saves messages to logfile
         """
         try:
             if self.log is None: raise Exception("Missing error logfile!")
@@ -84,7 +84,7 @@ class Manager:
         try:
             url = args[0]
         except Exception as err:
-            self.log_msg('ERROR', str(err), important=True)
+            self.log_msg('ERROR', str(err))
         return None
 
     ## CherryPy Reboot
