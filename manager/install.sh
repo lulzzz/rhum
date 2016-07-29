@@ -30,9 +30,9 @@ if [ $ans = y -o $ans = Y -o $ans = yes -o $ans = Yes -o $ans = YES ]
         apt-get install arduino arduino-mk -qq
         apt-get install x11-xserver-utils -y -qq
         apt-get install cython -y  -qq
-	apt-get install python-flask -y -qq
-        apt-get install python-cherrypy -y -qq
-	apt-get install python-requests -y -qq
+        apt-get install python-flask -y -qq
+        apt-get install python-cherrypy3 -y -qq
+        apt-get install python-requests -y -qq
 fi
 if [ $ans = n -o $ans = N -o $ans = no -o $ans = No -o $ans = NO ]
     then
