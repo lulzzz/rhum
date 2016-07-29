@@ -81,57 +81,55 @@ class Manager:
             * If the App has a task waiting, the task is returned as the response to the POST
         """
         try:
-            while ((len(self.remote_queue) < error_limit) or (error_limit is None)) and self.threads_active:
-                
-                # Wait for next event
-                time.sleep(1 / float(freq)) # slow down everyone, we're moving too fast
-                
-                # Handle controller queue
-                while len(self.controller_queue) > queue_limit:
-                    self.controller_queue.pop(0) # grab from out-queue
-                num_samples = len(self.controller_queue)
-                if num_samples > 0:
-                    self.log_msg("MCU QUEUE LENGTH: %d" %  num_samples)
-                    try:
-                        sample = self.controller_queue.pop()
-                        self.log_msg("SAMPLE: %s" % str(sample))
-                        response = self.push_to_remote(sample) # SEND TO REMOTE
-                        if (self.gui is not None):
-                            try:
-                                sample['data']
-                                self.gui.update_values(sample['data'])
-                            except:
-                                pass
-                        if response is not None:
-                            self.remote_queue.append(response)
-                    except Exception as e:
-                        self.log_msg(str(e))
-                        raise e
+            # Wait for next event
+            time.sleep(1 / float(freq)) # slow down everyone, we're moving too fast
+            
+            # Handle controller queue
+            while len(self.controller_queue) > queue_limit:
+                self.controller_queue.pop(0) # grab from out-queue
+            num_samples = len(self.controller_queue)
+            if num_samples > 0:
+                self.log_msg("MCU QUEUE LENGTH: %d" %  num_samples)
+                try:
+                    sample = self.controller_queue.pop()
+                    self.log_msg("SAMPLE: %s" % str(sample))
+                    response = self.push_to_remote(sample) # SEND TO REMOTE
+                    if (self.gui is not None):
+                        try:
+                            sample['data']
+                            self.gui.update_values(sample['data'])
+                        except:
+                            pass
+                    if response is not None:
+                        self.remote_queue.append(response)
+                except Exception as e:
+                    self.log_msg(str(e))
+                    raise e
 
-                # Handled accrued responses/errors
-                num_responses = len(self.remote_queue)
-                if num_responses > 0:
-                    for resp in self.remote_queue:
-                        self.log_msg("REMOTE QUEUE LENGTH: %d" % num_responses)
-                        self.log_msg("RESPONSE: %s" % str(resp))
-                        response_code = resp[0]
-                        if response_code == 200:
-                            self.remote_queue.pop()
-                            target_values = resp[1]['targets']
-                            if target_values is not None:
-                                try:
-                                    self.controller.set_params(target_values) # send target values within response to controller
-                                except Exception as e:
-                                    self.log_msg(str(e))
-                                self.controller_queue = []
-                        if response_code == 400: 
-                            self.remote_queue.pop() #!TODO bad connection!
-                        if response_code == 500:
-                            self.remote_queue.pop() #!TODO server there, but uncooperative!
-                        if response_code is None:
-                            self.remote_queue.pop()
-                        else:
-                            pass #!TODO Unknown errors!
+            # Handled accrued responses/errors
+            num_responses = len(self.remote_queue)
+            if num_responses > 0:
+                for resp in self.remote_queue:
+                    self.log_msg("REMOTE QUEUE LENGTH: %d" % num_responses)
+                    self.log_msg("RESPONSE: %s" % str(resp))
+                    response_code = resp[0]
+                    if response_code == 200:
+                        self.remote_queue.pop()
+                        target_values = resp[1]['targets']
+                        if target_values is not None:
+                            try:
+                                self.controller.set_params(target_values) # send target values within response to controller
+                            except Exception as e:
+                                self.log_msg(str(e))
+                            self.controller_queue = []
+                    if response_code == 400: 
+                        self.remote_queue.pop() #!TODO bad connection!
+                    if response_code == 500:
+                        self.remote_queue.pop() #!TODO server there, but uncooperative!
+                    if response_code is None:
+                        self.remote_queue.pop()
+                    else:
+                        pass #!TODO Unknown errors!
         except KeyboardInterrupt:
             self.log_msg("\nexiting...")
             self.threads_active = False
