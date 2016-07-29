@@ -7,26 +7,21 @@ from datetime import datetime
 import serial
 import sys, os
 import random
-import Tkinter as tk
+import cherrypy
 from itertools import cycle
-import tools.gui_tk as rhumGUI
-import tools.controller as rhumController
+import tools.CAN as CAN
 
 """
-Node Class
+Manager Class
 This class is responsible for acting as the HTTP interface between the remote manager (and/or local GUI) and controller(s)
 """
-class Node:
+class Manager:
 
-    def __init__(self, config=None, log='/home/trevor/log.txt'):
+    def __init__(self, config=None, log='log.txt'):
         self.config = config
         self.log = open(log, 'w')
-        self.gui = None
-        self.gui_exists = False
         self.threads_active = True
-        self.remote_queue = [] # tasks set by the remote (start empty, e.g. local will override)
-        self.controller = rhumController.Controller(rules=self.config['CTRL_CONF'])
-        self.controller_queue = [] # the outgoing queue (start empty)
+        self.gateway = CAN.Gateway()
         threading.Thread(target=self.watchdog, args=(), kwargs={}).start()
     
     def log_msg(self, msg):
@@ -50,7 +45,6 @@ class Node:
                     now = datetime.now()
                     datetimestamp = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S") # grab the current time-stamp for the sample
                     d['time'] = datetimestamp
-                    self.controller_queue.append(d) # add the sample to the outgoing queue to be handled by the node
             except Exception as e:
                 self.log_msg(str(e))
                 raise e
@@ -171,6 +165,30 @@ class Node:
             self.log_msg(str(e))
             self.threads_active = False
             exit(0)
+
+    ## Render Index
+    @cherrypy.expose
+    def index(self, indexfile="index.html", ):
+        indexpath = os.path.join(self.CURRENT_DIR, self.config['CHERRYPY_PATH'], indexfile)
+        with open(indexpath) as html:
+            return html.read()
+
+    ## Handle Posts
+    @cherrypy.expose
+    def default(self, *args, **kwargs):
+        """
+        This function is basically the API
+        """
+        try:
+            url = args[0]
+        except Exception as err:
+            self.log_msg('ERROR', str(err), important=True)
+        return None
+
+    ## CherryPy Reboot
+    @cherrypy.expose
+    def shutdown(self):
+        cherrypy.engine.exit()
     
 if __name__ == '__main__':
     if len(sys.argv) > 1:
@@ -179,7 +197,6 @@ if __name__ == '__main__':
         configfile = 'default.cfg'
     with open(configfile) as jsonfile:
         config = json.loads(jsonfile.read())
-    node = Node(config=config)
-    #node.run() # quickstart as daemon
-    node.run(gui=True) # quickstart as GUI
+    node = Manager(config=config)
+    node.run() # quickstart as daemon
     
