@@ -18,6 +18,7 @@ This class is responsible for acting as the HTTP interface between the remote se
 class Manager:
 
     def __init__(self, config=None, log='log.txt'):
+        self.workspace = os.path.dirname(os.path.abspath(__file__))
         self.config = config
         self.log = open(log, 'w')
         self.threads_active = True
@@ -176,6 +177,14 @@ if __name__ == '__main__':
         configfile = 'default.cfg'
     with open(configfile) as jsonfile:
         config = json.loads(jsonfile.read())
-    node = Manager(config=config)
-    node.run() # quickstart as daemon
+    manager = Manager(config=config)
+    cherrypy.server.socket_host = manager.config['cherrypy_address']
+    cherrypy.server.socket_port = manager.config['cherrypy_port']
+    conf = {
+        '/': {'tools.staticdir.on':True, 'tools.staticdir.dir':os.path.join(manager.workspace, manager.config['cherrypy_path'])},
+        '/js': {'tools.staticdir.on':True, 'tools.staticdir.dir':os.path.join(manager.workspace, manager.config['cherrypy_path'], 'js')},
+        '/logs': {'tools.staticdir.on':True, 'tools.staticdir.dir':os.path.join(manager.workspace, 'logs')},
+    }
+    cherrypy.quickstart(manager, '/', config=conf)
+    session.close()
     
