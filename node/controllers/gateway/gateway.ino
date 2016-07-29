@@ -6,12 +6,16 @@
 /* --- Libraries --- */
 #include <Canbus.h>
 #include <ArduinoJson.h>
-#include <RunningMedian.h>
-#include "MR17_CAN.h"
 
-/* --- Global Constants --- */
+/* --- Global --- */
 
-/* --- Global Variables --- */
+// Constants
+const unsigned int OUTPUT_LENGTH = 256;
+const unsigned int DATA_LENGTH = 128;
+const unsigned int JSON_LENGTH = 256;
+const unsigned int CANBUS_LENGTH = 8;
+const unsigned int BAUD = 9600;
+
 // Variables
 int chksum;
 int canbus_status = 0;
@@ -34,10 +38,6 @@ void setup() {
   while (!canbus_status) {
     canbus_status = Canbus.init(CANSPEED_500);
     delay(10);
-    canbus_attempts++;
-    if (canbus_attempts > 10) {
-      break;
-    }
   }
 }
 
@@ -51,44 +51,6 @@ void loop() {
   // Create empty JSON buffer
   StaticJsonBuffer<JSON_LENGTH> json_buffer;
   JsonObject& root = json_buffer.createObject();
-  
-  // Check to see if the ID matches a known device on CAN
-  if (ID == ESC_A_ID) { 
-    root["run_mode"] = canbus_rx_buffer[1];
-    root["trigger"] = canbus_rx_buffer[2];
-    root["pull_mode"] = canbus_rx_buffer[3];
-    root["cvt_sp"] = canbus_rx_buffer[4];
-    root["throttle"] = canbus_rx_buffer[5];
-    root["cart_mode"] = canbus_rx_buffer[6]; 
-    root["cart_dir"] = canbus_rx_buffer[7];
-  }
-  if (ID == ESC_B_ID) { 
-    root["left_brake"] = canbus_rx_buffer[1];
-    root["right_brake"] = canbus_rx_buffer[2];
-    root["temp"] = canbus_rx_buffer[3];
-    root["lph"] = canbus_rx_buffer[4];
-    root["psi"] = canbus_rx_buffer[5];
-    root["voltage"] = mapfloat(canbus_rx_buffer[6], 0, 255, 0, 25); // 0 to 25 V
-    root["rfid_auth"] = canbus_rx_buffer[7];
-  }
-  else if (ID == VDC_ID) {
-    root["steering_sp"] = map(canbus_rx_buffer[1], 0, 255, -100, 100);
-    root["steering_pv"] = map(canbus_rx_buffer[2], 0, 255, -100, 100); 
-    root["mot1"] = map(canbus_rx_buffer[3], 0, 255, -100, 100);
-    root["susp_pv"] = map(canbus_rx_buffer[4], 0, 255, 0, 100);
-    root["mot2"] = map(canbus_rx_buffer[5], 0, 255, -100, 100);
-    root["slot6"] = canbus_rx_buffer[6];
-    root["slot7"] = canbus_rx_buffer[7];
-  }
-  else if (ID == TSC_ID) {
-    root["engine_rpm"] = canbus_rx_buffer[1]; // 0,1,2,3,4 is neutral, 1st, 2nd, 3rd and reverse, respectively
-    root["shaft_rpm"] = map(canbus_rx_buffer[2], 0, 255, 0, 100); // 0 to 100 %
-    root["guard"] = canbus_rx_buffer[3]; //-100 to 100 degrees Celcius
-    root["cvt_pv"] = map(canbus_rx_buffer[4], 0, 255, 0, 100);
-    root["cvt_sp"] = map(canbus_rx_buffer[5], 0, 255, 0, 100); // 0 to 3600 rpm
-    root["gear"] = canbus_rx_buffer[6]; // 0 to 3600 rpm
-    root["lock"] = canbus_rx_buffer[7]; // 0 is unlocked, 1 is locked
-  }
   root.printTo(data_buffer, sizeof(data_buffer));
   int chksum = checksum(data_buffer);
   sprintf(output_buffer, "{\"data\":%s,\"chksum\":%d,\"id\":%d}", data_buffer, chksum, ID);
@@ -104,14 +66,3 @@ int checksum(char* buf) {
   }
   return sum % 256;
 }
-
-// Float to Char
-float float_to_char(float val) {
-  return 0.0;
-}
-
-// Map function adapted to floating points numbers
-float mapfloat(long x, long in_min, long in_max, long out_min, long out_max) {
- return (float)(x - in_min) * (out_max - out_min) / (float)(in_max - in_min) + out_min;
-}
-
