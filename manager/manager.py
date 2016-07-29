@@ -13,7 +13,7 @@ import tools.CAN as CAN
 
 """
 Manager Class
-This class is responsible for acting as the HTTP interface between the remote manager (and/or local GUI) and controller(s)
+This class is responsible for acting as the HTTP interface between the remote server and node(s)
 """
 class Manager:
 
@@ -70,7 +70,7 @@ class Manager:
             else:
                 return (400, 'Lost server')
 
-    def run(self, queue_limit=16, error_limit=None, gui=False, freq=1):
+    def run(self, queue_limit=16, error_limit=None, freq=1):
         """
         Run node as HTTP daemon
 
@@ -80,34 +80,11 @@ class Manager:
             * Data is pushed to the App via HTTP Post to SERVER_ADDR
             * If the App has a task waiting, the task is returned as the response to the POST
         """
-        if self.config['GUI']:
-            # Select GUI by controller type
-            if self.config['CTRL_CONF'] == 'v1':
-                self.gui = rhumGUI.GUI_v1()
-            if self.config['CTRL_CONF'] == 'bronfman':
-                self.gui = rhumGUI.GUI_bronfman()
-            else:
-                self.log_msg("GUI not found for \"%s\" configuration." % (self.config['CTRL_CONF']))
-                self.threads_active = False
-                exit(0)
-            # If GUI started successfully, run as thread
-            if self.gui:
-                self.gui.start()   
-
-        # Wait for values to get set
-        time.sleep(5)
-        
         try:
             while ((len(self.remote_queue) < error_limit) or (error_limit is None)) and self.threads_active:
                 
                 # Wait for next event
                 time.sleep(1 / float(freq)) # slow down everyone, we're moving too fast
-
-                # Handle GUI
-                # Retrieve local changes to targets (overrides remote)
-                if (self.gui is not None):
-                    gui_targets = self.gui.get_values() #!TODO Resolve multiple sources for setting targets, GUI should override
-                    current_params = self.controller.set_params(gui_targets)
                 
                 # Handle controller queue
                 while len(self.controller_queue) > queue_limit:
@@ -144,7 +121,6 @@ class Manager:
                             if target_values is not None:
                                 try:
                                     self.controller.set_params(target_values) # send target values within response to controller
-                                    self.gui.settings.update(target_values) #!TODO Dangerous way to update GUI from remote
                                 except Exception as e:
                                     self.log_msg(str(e))
                                 self.controller_queue = []
@@ -156,7 +132,6 @@ class Manager:
                             self.remote_queue.pop()
                         else:
                             pass #!TODO Unknown errors!
-
         except KeyboardInterrupt:
             self.log_msg("\nexiting...")
             self.threads_active = False
@@ -169,6 +144,9 @@ class Manager:
     ## Render Index
     @cherrypy.expose
     def index(self, indexfile="index.html", ):
+        """
+        This function is basically the API
+        """
         indexpath = os.path.join(self.CURRENT_DIR, self.config['CHERRYPY_PATH'], indexfile)
         with open(indexpath) as html:
             return html.read()
@@ -188,6 +166,9 @@ class Manager:
     ## CherryPy Reboot
     @cherrypy.expose
     def shutdown(self):
+        """
+        This function is basically the API
+        """
         cherrypy.engine.exit()
     
 if __name__ == '__main__':
