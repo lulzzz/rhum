@@ -31,9 +31,18 @@ class Manager:
         except Exception as error:
             self.log_msg('ENGINE', 'Error: %s' % str(error), important=True)
 
-    def log_msg(self, msg):
-        print msg
-        self.log.write(msg + '\n')
+    def log_msg(self, header, msg):
+        """
+        Saves important messages to logfile
+        """
+        try:
+            if self.log is None: raise Exception("Missing error logfile!")
+            date = datetime.strftime(datetime.now(), self.config['datetime_format'])
+            formatted_msg = "%s\t%s\t%s" % (date, header, msg)
+            with open(self.error_log_path, 'a') as error_log:
+                error_log.write(formatted_msg + '\n')
+        except Exception as error:
+            print "%s\tLOG\tERROR: Failed to log message!\n" % date
 
     def poll(self):
         """
@@ -46,14 +55,14 @@ class Manager:
             try:
                 d = self.gateway.poll() # Grab the latest response from the controller
                 if d is None:
-                    self.log_msg("CHECKSUM: FAILED")
+                    self.log_msg("", "CHECKSUM: FAILED")
                 else:
-                    self.log_msg("CHECKSUM: OK")
+                    self.log_msg("", "CHECKSUM: OK")
                     now = datetime.now()
                     datetimestamp = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S") # grab the current time-stamp for the sample
                     d['time'] = datetimestamp
             except Exception as e:
-                self.log_msg(str(e))
+                self.log_msg("", str(e))
                 raise e
 
     ## Render Index
