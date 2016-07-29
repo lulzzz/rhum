@@ -67,6 +67,9 @@ class Manager:
                 self.log_msg("", str(e))
                 raise e
 
+    def close(self):
+        pass
+
     ## Render Index
     @cherrypy.expose
     def index(self, indexfile="index.html", ):
