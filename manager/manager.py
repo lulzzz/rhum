@@ -113,5 +113,5 @@ if __name__ == '__main__':
         '/logs': {'tools.staticdir.on':True, 'tools.staticdir.dir':os.path.join(manager.workspace, 'logs')},
     }
     cherrypy.quickstart(manager, '/', config=conf)
-    session.close()
+    manager.close()
     
