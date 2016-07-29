@@ -24,14 +24,21 @@ class Manager:
         self.threads_active = True
         self.gateway = CAN.Gateway()
         threading.Thread(target=self.watchdog, args=(), kwargs={}).start()
-    
+        
+        # Initialize Webapp
+        self.log_msg('HTTP', 'NOTE: Initializing Run-Time Tasks ...')
+        try:
+            self.poll_task = Monitor(cherrypy.engine, self.poll, frequency=self.config['poll_freq']).subscribe()
+        except Exception as error:
+            self.log_msg('ENGINE', 'Error: %s' % str(error), important=True)
+
     def log_msg(self, msg):
         print msg
         self.log.write(msg + '\n')
 
-    def watchdog(self):
+    def poll(self):
         """
-        WatchDog Function
+        Poll Function
         Threaded function to listen for data from controller and parse it into Python readable info
         Associates each controller event with a datetime stamp
         Dies if threads_active becomes False
@@ -50,103 +57,13 @@ class Manager:
                 self.log_msg(str(e))
                 raise e
 
-    def push_to_remote(self, d):
-        """
-        Push current local settings to the remote manager
-        Arguments:
-            dict
-        Returns:
-            tuple of (code, msg)
-        """
-        try:
-            r = None
-            d['uid'] = self.config['UID']
-            d['node_type'] = self.config['CTRL_CONF']
-            addr = self.config['SERVER_ADDR']
-            r = requests.post(addr, json=d)
-            return (r.status_code, r.json())
-        except Exception as e:
-            if r is not None:
-                return (r.status_code, r.reason)
-            else:
-                return (400, 'Lost server')
-
-    def run(self, queue_limit=16, error_limit=None, freq=1):
-        """
-        Run node as HTTP daemon
-
-        Notes:
-            * Node-App configuration is Push-Pull
-            * For each iteration, the latest data gathered from the Controller is pushed from the Queue
-            * Data is pushed to the App via HTTP Post to SERVER_ADDR
-            * If the App has a task waiting, the task is returned as the response to the POST
-        """
-        try:
-            # Wait for next event
-            time.sleep(1 / float(freq)) # slow down everyone, we're moving too fast
-            
-            # Handle controller queue
-            while len(self.controller_queue) > queue_limit:
-                self.controller_queue.pop(0) # grab from out-queue
-            num_samples = len(self.controller_queue)
-            if num_samples > 0:
-                self.log_msg("MCU QUEUE LENGTH: %d" %  num_samples)
-                try:
-                    sample = self.controller_queue.pop()
-                    self.log_msg("SAMPLE: %s" % str(sample))
-                    response = self.push_to_remote(sample) # SEND TO REMOTE
-                    if (self.gui is not None):
-                        try:
-                            sample['data']
-                            self.gui.update_values(sample['data'])
-                        except:
-                            pass
-                    if response is not None:
-                        self.remote_queue.append(response)
-                except Exception as e:
-                    self.log_msg(str(e))
-                    raise e
-
-            # Handled accrued responses/errors
-            num_responses = len(self.remote_queue)
-            if num_responses > 0:
-                for resp in self.remote_queue:
-                    self.log_msg("REMOTE QUEUE LENGTH: %d" % num_responses)
-                    self.log_msg("RESPONSE: %s" % str(resp))
-                    response_code = resp[0]
-                    if response_code == 200:
-                        self.remote_queue.pop()
-                        target_values = resp[1]['targets']
-                        if target_values is not None:
-                            try:
-                                self.controller.set_params(target_values) # send target values within response to controller
-                            except Exception as e:
-                                self.log_msg(str(e))
-                            self.controller_queue = []
-                    if response_code == 400: 
-                        self.remote_queue.pop() #!TODO bad connection!
-                    if response_code == 500:
-                        self.remote_queue.pop() #!TODO server there, but uncooperative!
-                    if response_code is None:
-                        self.remote_queue.pop()
-                    else:
-                        pass #!TODO Unknown errors!
-        except KeyboardInterrupt:
-            self.log_msg("\nexiting...")
-            self.threads_active = False
-            exit(0)
-        except Exception as e:
-            self.log_msg(str(e))
-            self.threads_active = False
-            exit(0)
-
     ## Render Index
     @cherrypy.expose
     def index(self, indexfile="index.html", ):
         """
         This function is basically the API
         """
-        indexpath = os.path.join(self.CURRENT_DIR, self.config['CHERRYPY_PATH'], indexfile)
+        indexpath = os.path.join(self.CURRENT_DIR, self.config['cherrypy_path'], indexfile)
         with open(indexpath) as html:
             return html.read()
 
