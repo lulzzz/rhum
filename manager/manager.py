@@ -23,7 +23,6 @@ class Manager:
         self.log = open(log, 'w')
         self.threads_active = True
         self.gateway = CAN.Gateway()
-        threading.Thread(target=self.watchdog, args=(), kwargs={}).start()
         
         # Initialize Webapp
         self.log_msg('HTTP', 'NOTE: Initializing Run-Time Tasks ...')
@@ -63,7 +62,7 @@ class Manager:
         """
         This function is basically the API
         """
-        indexpath = os.path.join(self.CURRENT_DIR, self.config['cherrypy_path'], indexfile)
+        indexpath = os.path.join(self.workspace, self.config['cherrypy_path'], indexfile)
         with open(indexpath) as html:
             return html.read()
 
