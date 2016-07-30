@@ -1,16 +1,12 @@
 {
-    "lights_off": 24, 
-    "lights_on": 14, 
-    "overhead_level": 49, 
-    "s3": 29, 
-    "s2": 29, 
-    "s1": 30, 
-    "s4": 28, 
-    "p": 26, 
-    "time": 19.717398793333334, 
-    "soil_4": 65, 
-    "soil_2": 50, 
-    "soil_3": 31, 
-    "ambient_min": 80, 
-    "soil_1": 15
+    "manager_id" : "2341fwfg23sfdg",
+    "gateway_baud" : 38400,
+    "gateway_device" : "/dev/ttyACM0",
+    "gateway_use_checksum" : false,
+    "verbose" : true,
+    "poll_freq" : 10,
+    "cherrypy_path" : "static",
+    "cherrypy_port" : 8080,
+    "cherrypy_address" : "0.0.0.0",
+    "datetime_format" : "%Y-%m-%d %H:%M:%S.%f"
 }

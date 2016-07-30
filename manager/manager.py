@@ -22,14 +22,14 @@ class Manager:
     def __init__(self, config=None, log='log.txt'):
         self.workspace = os.path.dirname(os.path.abspath(__file__))
         self.config = config
-        self.log = open(log, 'w')
+        self.log = log
         self.threads_active = True
-        self.gateway = CAN.Gateway()
+        self.gateway = CAN.Gateway(baud=self.config['gateway_baud'], device=self.config['gateway_device'], use_checksum=self.config['gateway_use_checksum'])
         
         # Initialize Webapp
         self.log_msg('HTTP', 'NOTE: Initializing Run-Time Tasks ...')
         try:
-            self.poll_task = Monitor(cherrypy.engine, self.poll, frequency=self.config['poll_freq']).subscribe()
+            self.poll_task = Monitor(cherrypy.engine, self.poll, frequency=1/float(self.config['poll_freq'])).subscribe()
         except Exception as error:
             self.log_msg('ENGINE', 'Error: %s' % str(error))
 
@@ -41,8 +41,9 @@ class Manager:
             if self.log is None: raise Exception("Missing error logfile!")
             date = datetime.strftime(datetime.now(), self.config['datetime_format'])
             formatted_msg = "%s\t%s\t%s" % (date, header, msg)
-            with open(self.error_log_path, 'a') as error_log:
-                error_log.write(formatted_msg + '\n')
+            print formatted_msg
+            #with open(os.path.join(self.workspace, self.log), 'w') as error_log:
+            #    error_log.write(formatted_msg + '\n')
         except Exception as error:
             print "%s\tLOG\tERROR: Failed to log message!\n" % date
 
@@ -53,19 +54,14 @@ class Manager:
         Associates each controller event with a datetime stamp
         Dies if threads_active becomes False
         """
-        while self.threads_active == True:
-            try:
-                d = self.gateway.poll() # Grab the latest response from the controller
-                if d is None:
-                    self.log_msg("", "CHECKSUM: FAILED")
-                else:
-                    self.log_msg("", "CHECKSUM: OK")
-                    now = datetime.now()
-                    datetimestamp = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S") # grab the current time-stamp for the sample
-                    d['time'] = datetimestamp
-            except Exception as e:
-                self.log_msg("", str(e))
-                raise e
+        try:
+            d = self.gateway.poll() # Grab the latest response from the controller
+            if d is not None:
+                now = datetime.now()
+                datetimestamp = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S") # grab the current time-stamp for the sample
+                d['time'] = datetimestamp
+        except Exception as e:
+            self.log_msg("", "WARNING: %s" % str(e))
 
     def close(self):
         pass
@@ -76,9 +72,12 @@ class Manager:
         """
         This function is basically the API
         """
-        indexpath = os.path.join(self.workspace, self.config['cherrypy_path'], indexfile)
-        with open(indexpath) as html:
-            return html.read()
+        try:
+            indexpath = os.path.join(self.workspace, self.config['cherrypy_path'], indexfile)
+            with open(indexpath) as html:
+                return html.read()
+        except Exception as err:
+            self.log_msg("HTTP", "WARNING: %s" % str(err))
 
     ## Handle Posts
     @cherrypy.expose
@@ -89,7 +88,7 @@ class Manager:
         try:
             url = args[0]
         except Exception as err:
-            self.log_msg('ERROR', str(err))
+            self.log_msg("HTTP", "WARNING: %s" % str(err))
         return None
 
     ## CherryPy Reboot
@@ -104,7 +103,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         configfile = sys.argv[1]
     else:
-        configfile = 'default.cfg'
+        configfile = 'settings.json'
     with open(configfile) as jsonfile:
         config = json.loads(jsonfile.read())
     manager = Manager(config=config)
