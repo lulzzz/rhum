@@ -1,9 +1,12 @@
 <ion-view view-title="About">
   <ion-content>
     <div class="card">
-        <center> Recirculating Hydroponic Unit Manager (Rhum)</center>
+        <center> Recirculating Hydroponic Universal Manager (RHUM)</center>
         <center> McGill University, Department of Bioresource Engineering </center>
         <center> Developed by Trevor Stanhope </center>
     </div>
+    <ion-item>
+        <ion-toggle ng-model="VERBOSE" id="isVerbose" toggle-class="toggle-balanced" ng-change="setVerbose()">Verbose Logs</ion-toggle>
+    </ion-item>
   </ion-content>
 </ion-view>

@@ -1,5 +1,5 @@
 {
-    "manager_id" : "2341fwfg23sfdg",
+    "manager_id" : "001",
     "gateway_baud" : 38400,
     "gateway_device" : "/dev/ttyACM0",
     "gateway_use_checksum" : false,

@@ -26,7 +26,7 @@ angular.module('starter', ['ionic', 'controllers', 'services'])
   //if we don't get the settings, throw an error
 })
 
-.constant("host_url", "localhost:8080") // CHANGE TO localhost for debug
+.constant("host_url", "127.0.0.1:8080") // CHANGE TO localhost for debug
 
 .config(function($stateProvider, $urlRouterProvider) {
 
@@ -44,7 +44,6 @@ angular.module('starter', ['ionic', 'controllers', 'services'])
   })
 
   // Each tab has its own nav history stack:
-  // Dashboard
   .state('tab.dash', {
     url: '/dash',
     views: {
@@ -60,7 +59,21 @@ angular.module('starter', ['ionic', 'controllers', 'services'])
     }
   })
 
-  // About
+  .state('tab.settings', {
+      url: '/settings',
+      views: {
+        'tab-settings': {
+          templateUrl: 'templates/tab-settings.html',
+          controller: 'advancedCtrl',
+          resolve: {
+            advancedSettings: function (advancedSettingsService) {
+              return advancedSettingsService.getAdvancedSettings();
+            }
+          }
+        }
+      }
+    })
+
   .state('tab.about', {
     url: '/about',
     views: {

@@ -79,7 +79,7 @@ class Manager:
 
     ## Render Index
     @cherrypy.expose
-    def index(self, indexfile="index.html", ):
+    def index(self, indexfile="index.html"):
         """
         This function is basically the API
         """
@@ -122,7 +122,8 @@ if __name__ == '__main__':
     cherrypy.server.socket_host = manager.config['cherrypy_address']
     cherrypy.server.socket_port = manager.config['cherrypy_port']
     conf = {
-        '/': {'tools.staticdir.on':True, 'tools.staticdir.dir':os.path.join(manager.workspace, manager.config['cherrypy_path'])}
+        '/': {'tools.staticdir.on':True, 'tools.staticdir.dir':os.path.join(manager.workspace, manager.config['cherrypy_path'])},
+        '/js': {'tools.staticdir.on':True, 'tools.staticdir.dir':os.path.join(manager.workspace, manager.config['cherrypy_path'], 'js')},
     }
     cherrypy.quickstart(manager, '/', config=conf)
     manager.close()
