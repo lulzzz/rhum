@@ -52,27 +52,13 @@ angular.module('starter', ['ionic', 'controllers', 'services'])
         controller: 'DashCtrl',
         resolve: {
           dashSettings: function (dashSettingsService) {
-            return dashSettingsService.getDashSettings();
+            return dashSettingsService.getDashSettings();
           }
         }
       }
     }
   })
 
-  .state('tab.settings', {
-      url: '/settings',
-      views: {
-        'tab-settings': {
-          templateUrl: 'templates/tab-settings.html',
-          controller: 'advancedCtrl',
-          resolve: {
-            advancedSettings: function (advancedSettingsService) {
-              return advancedSettingsService.getAdvancedSettings();
-            }
-          }
-        }
-      }
-    })
 
   .state('tab.about', {
     url: '/about',
@@ -80,9 +66,9 @@ angular.module('starter', ['ionic', 'controllers', 'services'])
       'tab-about': {
         templateUrl: 'templates/tab-about.html',
         controller: 'AboutCtrl',
-		resolve: {
+        resolve: {
             aboutSettings: function (aboutSettingsService) {
-              return aboutSettingsService.getAboutSettings();
+              return aboutSettingsService.getAboutSettings();
             }
           }
       }
