@@ -22,11 +22,19 @@ class Manager:
 
     def __init__(self, config=None, log='log.txt'):
         try:
-            self.workspace = os.path.dirname(os.path.abspath(__file__))
             self.config = config
-            self.log = log
-            self.threads_active = True
+            self.workspace = os.path.dirname(os.path.abspath(__file__))
+            self.logs_directory = os.path.join(self.workspace, self.config['cherrypy_path'], 'logs')
+            self.logfile = open(os.path.join(self.logs_directory, log), 'w')
+        except Exception as error:
+            self.log_msg('ENGINE', 'Error: %s' % str(error))
+
+        try:
             self.gateway = CAN.Gateway(baud=self.config['gateway_baud'], device=self.config['gateway_device'], use_checksum=self.config['gateway_use_checksum'])
+        except Exception as error:
+            self.log_msg('ENGINE', 'Error: %s' % str(error))
+
+        try:
             self.database = DB.CircularDB(port=self.config['db_port'], address=self.config['db_address'], name=self.config['db_name'], cutoff_hours=self.config['db_cutoff_hours'])
         except Exception as error:
             self.log_msg('ENGINE', 'Error: %s' % str(error))
@@ -44,19 +52,19 @@ class Manager:
         Saves messages to logfile
         """
         try:
-            if self.log is None: raise Exception("Missing error logfile!")
+            if self.logfile is None: raise Exception("Missing error logfile!")
             date = datetime.strftime(datetime.now(), self.config['datetime_format'])
             formatted_msg = "%s\t%s\t%s" % (date, header, msg)
             print formatted_msg
+            self.logfile.write(formatted_msg + '\n')
         except Exception as error:
-            print "%s\tLOG\tERROR: Failed to log message!\n" % date
+            print "LOG\tERROR: Failed to log message!\n"
 
     def poll(self):
         """
         Poll Function
         Threaded function to listen for data from controller and parse it into Python readable info
         Associates each controller event with a datetime stamp
-        Dies if threads_active becomes False
         """
         try:
             d = self.gateway.poll() # Grab the latest response from the controller
@@ -85,7 +93,6 @@ class Manager:
         """
         try:
             indexpath = os.path.join(self.workspace, self.config['cherrypy_path'], indexfile)
-            #self.database.dump_csv(indexpath)
             with open(indexpath, 'r') as html:
                 return html.read()
         except Exception as err:
@@ -99,6 +106,13 @@ class Manager:
         """
         try:
             url = args[0]
+            fname = args[1]
+            if fname == 'data.csv':
+                self.database.dump_csv(os.path.join(self.logs_directory, fname))
+            elif fname == 'data.json':
+                self.database.dump_json(os.path.join(self.logs_directory, fname))
+            else:
+                self.log_msg("HTTP", "WARNING: Unrecognized request" % str(err))
         except Exception as err:
             self.log_msg("HTTP", "WARNING: %s" % str(err))
         return None
@@ -124,6 +138,7 @@ if __name__ == '__main__':
     conf = {
         '/': {'tools.staticdir.on':True, 'tools.staticdir.dir':os.path.join(manager.workspace, manager.config['cherrypy_path'])},
         '/js': {'tools.staticdir.on':True, 'tools.staticdir.dir':os.path.join(manager.workspace, manager.config['cherrypy_path'], 'js')},
+        '/logs': {'tools.staticdir.on':True, 'tools.staticdir.dir':os.path.join(manager.workspace, manager.config['cherrypy_path'], 'logs')},
     }
     cherrypy.quickstart(manager, '/', config=conf)
     manager.close()

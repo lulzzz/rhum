@@ -26,7 +26,7 @@ angular.module('starter', ['ionic', 'controllers', 'services'])
   //if we don't get the settings, throw an error
 })
 
-.constant("host_url", "192.168.2.2:8080") // CHANGE TO localhost for debug
+.constant("host_url", "127.0.0.1:8080") // CHANGE TO localhost for debug
 
 .config(function($stateProvider, $urlRouterProvider) {
 

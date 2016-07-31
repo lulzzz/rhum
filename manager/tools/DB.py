@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 import pymongo
-import bson
+from bson import json_util
 
 class CircularDB:
     """
@@ -33,7 +33,8 @@ class CircularDB:
     def dump_json(self, filepath):
         try:
             with open(filepath, 'w') as jsonfile:
-                dump = bson.json_util.dumps(results, indent=4)
+                results = [doc for doc in self.data_collection.find({})]
+                dump = json_util.dumps(results, indent=4)
                 jsonfile.write(dump)
         except Exception as e:
             raise e
