@@ -21,12 +21,15 @@ This class is responsible for acting as the HTTP interface between the remote se
 class Manager:
 
     def __init__(self, config=None, log='log.txt'):
-        self.workspace = os.path.dirname(os.path.abspath(__file__))
-        self.config = config
-        self.log = log
-        self.threads_active = True
-        self.gateway = CAN.Gateway(baud=self.config['gateway_baud'], device=self.config['gateway_device'], use_checksum=self.config['gateway_use_checksum'])
-        self.database = DB.CircularDB(port=self.config['db_port'], address=self.config['db_address'], name=self.config['db_name'], cutoff_hours=self.config['db_cutoff_hours'])
+        try:
+            self.workspace = os.path.dirname(os.path.abspath(__file__))
+            self.config = config
+            self.log = log
+            self.threads_active = True
+            self.gateway = CAN.Gateway(baud=self.config['gateway_baud'], device=self.config['gateway_device'], use_checksum=self.config['gateway_use_checksum'])
+            self.database = DB.CircularDB(port=self.config['db_port'], address=self.config['db_address'], name=self.config['db_name'], cutoff_hours=self.config['db_cutoff_hours'])
+        except Exception as error:
+            self.log_msg('ENGINE', 'Error: %s' % str(error))
 
         # Initialize Webapp
         self.log_msg('HTTP', 'NOTE: Initializing Run-Time Tasks ...')
@@ -119,9 +122,7 @@ if __name__ == '__main__':
     cherrypy.server.socket_host = manager.config['cherrypy_address']
     cherrypy.server.socket_port = manager.config['cherrypy_port']
     conf = {
-        '/': {'tools.staticdir.on':True, 'tools.staticdir.dir':os.path.join(manager.workspace, manager.config['cherrypy_path'])},
-        '/js': {'tools.staticdir.on':True, 'tools.staticdir.dir':os.path.join(manager.workspace, manager.config['cherrypy_path'], 'js')},
-        '/logs': {'tools.staticdir.on':True, 'tools.staticdir.dir':os.path.join(manager.workspace, 'logs')},
+        '/': {'tools.staticdir.on':True, 'tools.staticdir.dir':os.path.join(manager.workspace, manager.config['cherrypy_path'])}
     }
     cherrypy.quickstart(manager, '/', config=conf)
     manager.close()

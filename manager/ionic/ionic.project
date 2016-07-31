@@ -1,10 +1,10 @@
 {
-  "name": "myapp",
+  "name": "rhum",
   "app_id": "",
   "proxies": [
     {
       "path": "/api",
-      "proxyUrl": "http://10.0.1.23:8080"
+      "proxyUrl": "http://192.168.2.2:8080"
     }
   ]
 }

@@ -9,5 +9,7 @@ angular.module("controllers", [])
 
 // About Tab
 .controller('AboutCtrl', function($scope, $http, aboutSettings, host_url) {
-    
+    $scope.saveLog = function () {
+        window.open("http://"+host_url+"/logs/log.txt");
+    }
 });
