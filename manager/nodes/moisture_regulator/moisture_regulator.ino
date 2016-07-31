@@ -11,10 +11,9 @@
 #include "stdio.h"
 
 /* --- Global --- */
-const unsigned int DEVICE_NT = 0x0001; // Node Type
-const unsigned int DEVICE_SN = 1; // Device Series Number 
-const unsigned int DEVICE_PN = 1; // Device Part Number
-const unsigned int DEVICE_ID = 1; // Device Identification Number
+const unsigned int DEVICE_NT = 0x01; // Node Type
+const unsigned int DEVICE_SN = 0x01; // Device Series Number 
+const unsigned int DEVICE_ID = 0x01; // Device Identification Number
 
 // Message Types
 const int GET_REQUEST = 1;

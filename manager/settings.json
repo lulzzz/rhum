@@ -5,8 +5,13 @@
     "gateway_use_checksum" : false,
     "verbose" : true,
     "poll_freq" : 10,
+    "clean_freq" : 0.0001,
     "cherrypy_path" : "static",
     "cherrypy_port" : 8080,
     "cherrypy_address" : "0.0.0.0",
+    "db_address" : "127.0.0.1",
+    "db_port" : 27017,
+    "db_name" : "default",
+    "db_cutoff_hours" : 336,
     "datetime_format" : "%Y-%m-%d %H:%M:%S.%f"
 }

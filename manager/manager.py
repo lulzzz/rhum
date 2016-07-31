@@ -12,7 +12,7 @@ from cherrypy.process.plugins import Monitor
 from cherrypy import tools
 from itertools import cycle
 import tools.CAN as CAN
-import pymongo
+import tools.DB as DB
 
 """
 Manager Class
@@ -26,11 +26,13 @@ class Manager:
         self.log = log
         self.threads_active = True
         self.gateway = CAN.Gateway(baud=self.config['gateway_baud'], device=self.config['gateway_device'], use_checksum=self.config['gateway_use_checksum'])
-        
+        self.database = DB.CircularDB(port=self.config['db_port'], address=self.config['db_address'], name=self.config['db_name'], cutoff_hours=self.config['db_cutoff_hours'])
+
         # Initialize Webapp
         self.log_msg('HTTP', 'NOTE: Initializing Run-Time Tasks ...')
         try:
             self.poll_task = Monitor(cherrypy.engine, self.poll, frequency=1/float(self.config['poll_freq'])).subscribe()
+            self.clean_task = Monitor(cherrypy.engine, self.clean, frequency=1/float(self.config['clean_freq'])).subscribe()
         except Exception as error:
             self.log_msg('ENGINE', 'Error: %s' % str(error))
 
@@ -43,8 +45,6 @@ class Manager:
             date = datetime.strftime(datetime.now(), self.config['datetime_format'])
             formatted_msg = "%s\t%s\t%s" % (date, header, msg)
             print formatted_msg
-            #with open(os.path.join(self.workspace, self.log), 'w') as error_log:
-            #    error_log.write(formatted_msg + '\n')
         except Exception as error:
             print "%s\tLOG\tERROR: Failed to log message!\n" % date
 
@@ -61,6 +61,13 @@ class Manager:
                 now = datetime.now()
                 datetimestamp = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S") # grab the current time-stamp for the sample
                 d['time'] = datetimestamp
+                self.database.store(d)
+        except Exception as e:
+            self.log_msg("", "WARNING: %s" % str(e))
+
+    def clean(self):
+        try:
+            self.database.clean()
         except Exception as e:
             self.log_msg("", "WARNING: %s" % str(e))
 
@@ -69,13 +76,14 @@ class Manager:
 
     ## Render Index
     @cherrypy.expose
-    def index(self, indexfile="index.html", ):
+    def index(self, indexfile="index.csv", ):
         """
         This function is basically the API
         """
         try:
             indexpath = os.path.join(self.workspace, self.config['cherrypy_path'], indexfile)
-            with open(indexpath) as html:
+            self.database.dump_csv(indexpath)
+            with open(indexpath, 'r') as html:
                 return html.read()
         except Exception as err:
             self.log_msg("HTTP", "WARNING: %s" % str(err))

@@ -1,15 +1,10 @@
 import json
-import requests
-import threading
-import time
 from datetime import datetime
 import serial
-import sys, os
-import random
 
 class Gateway:
     """
-    Controller Class
+    Gateway Class
 
     SUPPORT:
     JSON-only communication messages.
@@ -21,7 +16,7 @@ class Gateway:
     """
     def __init__(self, use_checksum=False, timeout=1, baud=38400, device="/dev/ttyACM0"):
         """
-        rules : The JSON-like .ctrl file for I/O rules
+        Initialize the Gateway
         """
         try:
 
@@ -34,13 +29,11 @@ class Gateway:
         except Exception as e:
             raise e
 
-        ## Connect to MCU
         try:
             self.port = serial.Serial(self.device, self.baud, timeout=self.timeout)
         except Exception as e:
             self.port = None
             raise Exception("Failed to attach MCU!")
-            
 
     def byteify(self, input):
         if isinstance(input, dict):
