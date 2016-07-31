@@ -1,0 +1,18 @@
+<ion-view view-title="About">
+  <ion-content>
+    <div class="card">
+        <center> Agricultural Computer Vision System (AgCV)</center>
+        <center> McGill University, Department of Bioresource Engineering </center>
+        <center> Developed by Trevor Stanhope </center>
+    </div>
+	<ion-item>
+		<ion-toggle ng-model="VERBOSE" id="isVerbose" toggle-class="toggle-balanced" ng-change="setVerbose()">Verbose Logs</ion-toggle>
+    </ion-item>
+    <div class="item">
+        <button class="button button-full button-positive" ng-click="saveLog()">Download Log</button>
+    </div>
+	<div class="item">
+        <button class="button button-full button-energized" ng-click="upgradeSystem()">Upgrade</button>
+    </div>
+  </ion-content>
+</ion-view>
