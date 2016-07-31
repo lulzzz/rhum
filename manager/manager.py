@@ -112,7 +112,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         configfile = sys.argv[1]
     else:
-        configfile = 'settings.json'
+        configfile =  os.path.join(os.path.dirname(os.path.abspath(__file__)), 'settings.json')
     with open(configfile) as jsonfile:
         config = json.loads(jsonfile.read())
     manager = Manager(config=config)
