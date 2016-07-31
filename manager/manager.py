@@ -76,13 +76,13 @@ class Manager:
 
     ## Render Index
     @cherrypy.expose
-    def index(self, indexfile="index.csv", ):
+    def index(self, indexfile="index.html", ):
         """
         This function is basically the API
         """
         try:
             indexpath = os.path.join(self.workspace, self.config['cherrypy_path'], indexfile)
-            self.database.dump_csv(indexpath)
+            #self.database.dump_csv(indexpath)
             with open(indexpath, 'r') as html:
                 return html.read()
         except Exception as err:
