@@ -35,6 +35,13 @@ if [ $ans = y -o $ans = Y -o $ans = yes -o $ans = Yes -o $ans = YES ]
         apt-get install python-requests -y -qq
         apt-get install python-setuptools -y -qq
         apt-get install mongodb -y -qq
+        apt-get install dnsmasq -y -qq
+        apt-get install hostapd -y -qq
+        cp conf/ap.cfg /etc/network/interfaces.d/ap.cfg
+        cp conf/wired.cfg /etc/network/interfaces.d/wired.cfg
+        cp conf/hostapd.conf /etc/hostapd/
+        cp conf/dnsmasq.conf /etc/
+        cp conf/dhclient.conf /etc/dhcp/
 fi
 if [ $ans = n -o $ans = N -o $ans = no -o $ans = No -o $ans = NO ]
     then
