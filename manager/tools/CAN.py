@@ -18,22 +18,17 @@ class Gateway:
         """
         Initialize the Gateway
         """
-        try:
-
-            # Get settings
-            self.use_checksum = use_checksum
-            self.device = device
-            self.baud = baud
-            self.timeout = timeout
-
-        except Exception as e:
-            raise e
+        # Get settings
+        self.use_checksum = use_checksum
+        self.device = device
+        self.baud = baud
+        self.timeout = timeout
 
         try:
             self.port = serial.Serial(self.device, self.baud, timeout=self.timeout)
         except Exception as e:
             self.port = None
-            raise Exception("Failed to attach MCU!")
+            raise e
 
     def byteify(self, input):
         if isinstance(input, dict):
@@ -46,19 +41,16 @@ class Gateway:
             return input
 
     def poll(self, chars=256, force_read=False): 
-        try:
-            s = self.port.readline()
-            msg = self.byteify(json.loads(s)) # parse as JSON
-            if self.use_checksum:
-                chksum = self.checksum(msg['data'])
-                if self.checksum(msg['data']) == msg['chksum']: # run checksum of parsed dictionary
-                    return msg # return data if checksum ok
-                else:
-                    return None # return None if checksum failed
+        s = self.port.readline()
+        msg = self.byteify(json.loads(s)) # parse as JSON
+        if self.use_checksum:
+            chksum = self.checksum(msg['data'])
+            if self.checksum(msg['data']) == msg['chksum']: # run checksum of parsed dictionary
+                return msg # return data if checksum ok
             else:
-                return msg
-        except Exception as e:
-            raise e
+                return None # return None if checksum failed
+        else:
+            return msg
 
     def checksum(self, data, mod=256, force_precision=2):
         """

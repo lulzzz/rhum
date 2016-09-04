@@ -13,5 +13,5 @@
     "db_port" : 27017,
     "db_name" : "default",
     "db_cutoff_hours" : 336,
-    "datetime_format" : "%Y-%m-%d %H:%M:%S.%f"
+    "datetime_format" : "[%d/%b/%Y:%H:%M:%S]"
 }

@@ -20,32 +20,40 @@ This class is responsible for acting as the HTTP interface between the remote se
 """
 class Manager:
 
-    def __init__(self, config=None, log='log.txt'):
+    def __init__(self, config=None, log='errors.txt'):
         try:
             self.config = config
             self.workspace = os.path.dirname(os.path.abspath(__file__))
             self.logs_directory = os.path.join(self.workspace, self.config['cherrypy_path'], 'logs')
-            self.logfile = open(os.path.join(self.logs_directory, log), 'w')
+            self.logfile = os.path.join(self.logs_directory, log)
+            with open(self.logfile, 'w') as log:
+                pass
         except Exception as error:
-            self.log_msg('ENGINE', 'Error: %s' % str(error))
+            self.log_msg('ENGINE', 'ERROR: %s' % str(error))
 
         try:
+            self.log_msg('CANBUS', 'NOTE: Initializing CANBUS ...')
             self.gateway = CAN.Gateway(baud=self.config['gateway_baud'], device=self.config['gateway_device'], use_checksum=self.config['gateway_use_checksum'])
         except Exception as error:
-            self.log_msg('ENGINE', 'Error: %s' % str(error))
+            self.gateway = None
+            self.log_msg('CANBUS', 'ERROR: %s' % str(error))
+        if self.gateway is None: self.log_msg('CANBUS', 'ERROR: No CAN Gateway found!')
 
         try:
+            self.log_msg('DB    ', 'NOTE: Initializing Database ...')
             self.database = DB.CircularDB(port=self.config['db_port'], address=self.config['db_address'], name=self.config['db_name'], cutoff_hours=self.config['db_cutoff_hours'])
         except Exception as error:
-            self.log_msg('ENGINE', 'Error: %s' % str(error))
+            self.database = None
+            self.log_msg('DB    ', 'ERROR: %s' % str(error))
+        if self.database is None: self.log_msg('DB    ', 'Error: Database failed to attached!')
 
         # Initialize Webapp
-        self.log_msg('HTTP', 'NOTE: Initializing Run-Time Tasks ...')
+        self.log_msg('HTTP  ', 'NOTE: Initializing Run-Time Tasks ...')
         try:
             self.poll_task = Monitor(cherrypy.engine, self.poll, frequency=1/float(self.config['poll_freq'])).subscribe()
             self.clean_task = Monitor(cherrypy.engine, self.clean, frequency=1/float(self.config['clean_freq'])).subscribe()
         except Exception as error:
-            self.log_msg('ENGINE', 'Error: %s' % str(error))
+            self.log_msg('HTTP  ', 'ERROR: %s' % str(error))
 
     def log_msg(self, header, msg):
         """
@@ -54,11 +62,12 @@ class Manager:
         try:
             if self.logfile is None: raise Exception("Missing error logfile!")
             date = datetime.strftime(datetime.now(), self.config['datetime_format'])
-            formatted_msg = "%s\t%s\t%s" % (date, header, msg)
+            formatted_msg = "%s %s %s" % (date, header, msg)
             print formatted_msg
-            self.logfile.write(formatted_msg + '\n')
+            with open(self.logfile, 'a') as log:
+                log.write(formatted_msg + '\n')
         except Exception as error:
-            print "LOG\tERROR: Failed to log message!\n"
+            print "FATAL ERROR: Failed to log message!\n"
 
     def poll(self):
         """
@@ -66,21 +75,22 @@ class Manager:
         Threaded function to listen for data from controller and parse it into Python readable info
         Associates each controller event with a datetime stamp
         """
-        try:
-            d = self.gateway.poll() # Grab the latest response from the controller
-            if d is not None:
-                now = datetime.now()
-                datetimestamp = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S") # grab the current time-stamp for the sample
-                d['time'] = datetimestamp
-                self.database.store(d)
-        except Exception as e:
-            self.log_msg("", "WARNING: %s" % str(e))
+        if self.gateway is not None:
+            try:
+                d = self.gateway.poll() # Grab the latest response from the controller
+                if d is not None:
+                    now = datetime.now()
+                    datetimestamp = datetime.strftime(datetime.now(), self.config['datetime_format']) # grab the current time-stamp for the sample
+                    d['time'] = datetimestamp
+                    self.database.store(d)
+            except Exception as e:
+                self.log_msg("CANBUS", "WARNING: %s" % str(e))
 
     def clean(self):
         try:
             self.database.clean()
         except Exception as e:
-            self.log_msg("", "WARNING: %s" % str(e))
+            self.log_msg("DB    ", "WARNING: %s" % str(e))
 
     def close(self):
         pass
@@ -96,7 +106,7 @@ class Manager:
             with open(indexpath, 'r') as html:
                 return html.read()
         except Exception as err:
-            self.log_msg("HTTP", "WARNING: %s" % str(err))
+            self.log_msg("HTTP  ", "WARNING: %s" % str(err))
 
     ## Handle Posts
     @cherrypy.expose
@@ -112,9 +122,9 @@ class Manager:
             elif fname == 'data.json':
                 self.database.dump_json(os.path.join(self.logs_directory, fname))
             else:
-                self.log_msg("HTTP", "WARNING: Unrecognized request" % str(err))
+                self.log_msg("HTTP  ", "WARNING: Unrecognized request" % str(err))
         except Exception as err:
-            self.log_msg("HTTP", "WARNING: %s" % str(err))
+            self.log_msg("HTTP  ", "WARNING: %s" % str(err))
         return None
 
     ## CherryPy Reboot

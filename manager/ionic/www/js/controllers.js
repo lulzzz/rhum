@@ -19,4 +19,7 @@ angular.module("controllers", [])
             $scope.VERBOSE = true;
         }
     }
+    $scope.getErrors = function () {
+        window.open("http://" + host_url + "/logs/errors.txt");
+    }
 });
