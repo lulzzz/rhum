@@ -2,7 +2,7 @@
 *.pyc
 *.log
 #*#
-node/controllers/*/build-cli
+manager/nodes/*/build-cli
 manager/ionic/www/logs/errors.txt
 manager/ionic/www/logs/data.csv
 manager/ionic/www/logs/data.json
