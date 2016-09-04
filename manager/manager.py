@@ -28,6 +28,8 @@ class Manager:
             self.logfile = os.path.join(self.logs_directory, log)
             with open(self.logfile, 'w') as log:
                 pass
+            self.poll_bad_counter = 0
+            self.poll_ok_counter = 0
         except Exception as error:
             self.log_msg('ENGINE', 'ERROR: %s' % str(error))
 
@@ -79,12 +81,21 @@ class Manager:
             try:
                 d = self.gateway.poll() # Grab the latest response from the controller
                 if d is not None:
+                    self.poll_ok_counter += 1
                     now = datetime.now()
                     datetimestamp = datetime.strftime(datetime.now(), self.config['datetime_format']) # grab the current time-stamp for the sample
                     d['time'] = datetimestamp
                     self.database.store(d)
+                else:
+                     self.poll_bad_counter += 1
             except Exception as e:
                 self.log_msg("CANBUS", "WARNING: %s" % str(e))
+        else:
+            self.poll_bad_counter += 1
+        if self.poll_bad_counter + self.poll_ok_counter == 100:
+            self.log_msg("CANBUS", "NOTE: Gateway read ratio: %d / %d" % (self.poll_ok_counter, self.poll_bad_counter))
+            self.poll_ok_counter = 0
+            self.poll_bad_counter = 0
 
     def clean(self):
         try:
