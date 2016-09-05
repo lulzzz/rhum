@@ -8,8 +8,8 @@ angular.module("controllers", [])
         window.open("http://" + host_url + "/logs/data-" + $scope.Days.value + ".csv");
     }
     $scope.getJSON = function () {
-        window.open("http://" + host_url + "/logs/data" + $scope.Days.value + ".json");
-        window.open("http://" + host_url + "/logs/data" + $scope.Days.value + ".json");
+        window.open("http://" + host_url + "/logs/data-" + $scope.Days.value + ".json");
+        window.open("http://" + host_url + "/logs/data-" + $scope.Days.value + ".json");
     }
 })
 
