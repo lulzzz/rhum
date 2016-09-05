@@ -130,13 +130,13 @@ class Manager:
             fname = args[1]
             if fnmatch.fnmatch(fname, 'data-*.csv'):
                 try:
-                    self.log_msg("HTTP  ", "NOTE: Caught request to regen %s" % fname)
+                    self.log_msg("HTTP  ", "NOTE: Request to regenerate: %s" % fname)
                     self.database.dump_csv(os.path.join(self.logs_directory, fname), days=int(re.findall(r'\d+', fname)[0]))
                 except Exception as e:
                     self.log_msg("DB    ", "ERROR: %s" % str(e))
             elif fnmatch.fnmatch(fname, 'data-*.json'):
                 try:
-                    self.log_msg("HTTP  ", "NOTE: Caught request to regen %s" % fname)
+                    self.log_msg("HTTP  ", "NOTE: Request to regenerate: %s" % fname)
                     self.database.dump_json(os.path.join(self.logs_directory, fname), days=int(re.findall(r'\d+', fname)[0]))
                 except Exception as e:
                     self.log_msg("DB    ", "ERROR: %s" % str(e))

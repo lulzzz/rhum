@@ -30,20 +30,22 @@ class CircularDB:
         return result
     
     ## Dump tp JSON
-    def dump_json(self, filepath, days=1):
+    def dump_json(self, filepath, days=1, datetime_format="%Y-%m-%d %H:%M:%S"):
         try:
             self.now = datetime.now()
-            print days
             self.then = self.now - timedelta(days=days)
             with open(filepath, 'w') as jsonfile:
                 results = [doc for doc in self.data_collection.find({'time': {'$gte': self.then, '$lt': self.now}})]
+                for doc in results:
+                    del doc['_id']
+                    doc['time'] = datetime.strftime(doc['time'], datetime_format)
                 dump = json_util.dumps(results, indent=4)
                 jsonfile.write(dump)
         except Exception as e:
             raise e
     
     ## Dump to CSV
-    def dump_csv(self, filepath, days=1):
+    def dump_csv(self, filepath, days=1, datetime_format="%Y-%m-%d %H:%M:%S"):
         try:
             self.now = datetime.now()
             print days
@@ -51,7 +53,9 @@ class CircularDB:
             with open(filepath, 'w') as csvfile:
                 results = self.data_collection.find({'time': {'$gte': self.then, '$lt': self.now}})
                 for doc in results:
+                    print doc
                     del doc['_id']
+                    doc['time'] = datetime.strftime(doc['time'], datetime_format)
                     a = [str(i) for i in doc.values()]
                     a.append('\r\n')
                     out = ','.join(a)
@@ -72,8 +76,7 @@ class CircularDB:
     ## Sample
     def store(self, sample, datetime_format="%Y-%m-%d %H:%M:%S"):
         try:
-            self.now = datetime.now()
-            sample['time'] = datetime.strftime(self.now, datetime_format) # grab the current time-stamp for the sample
+            sample['time'] = datetime.now() # grab the current time-stamp for the sample
             sample_id = self.data_collection.insert(sample)
             return str(sample_id)
         except Exception as e:
