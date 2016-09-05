@@ -56,7 +56,9 @@ class CircularDB:
                     print doc
                     del doc['_id']
                     doc['time'] = datetime.strftime(doc['time'], datetime_format)
-                    a = [str(i) for i in doc.values()]
+                    doc['data'] = doc['data'].values()
+                    f = reduce(lambda x,y: x+y, doc)
+                    a = [str(i) for i in f.values()]
                     a.append('\r\n')
                     out = ','.join(a)
                     csvfile.write(out)
