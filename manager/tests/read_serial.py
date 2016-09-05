@@ -8,7 +8,6 @@ class Arduino:
         self.port = serial.Serial(dev, baud)
 
     def listen(self):
-        self.port.flush()
         s = self.port.readline()
         return s
 
