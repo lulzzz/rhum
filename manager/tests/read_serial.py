@@ -51,3 +51,5 @@ if __name__ == '__main__':
             print res
         except KeyboardInterrupt:
             break
+        except Exception as e:
+            print str(e)
