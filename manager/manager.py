@@ -131,11 +131,13 @@ class Manager:
             fname = args[1]
             if fname == 'data.csv':
                 try:
+                    self.log_msg("HTTP  ", "NOTE: Caught request to regen %s" % fname)
                     self.database.dump_csv(os.path.join(self.logs_directory, fname))
                 except Exception as e:
                     self.log_msg("DB    ", "ERROR: %s" % str(e))
             elif fname == 'data.json':
                 try:
+                    self.log_msg("HTTP  ", "NOTE: Caught request to regen %s" % fname)
                     self.database.dump_json(os.path.join(self.logs_directory, fname))
                 except Exception as e:
                     self.log_msg("DB    ", "ERROR: %s" % str(e))
