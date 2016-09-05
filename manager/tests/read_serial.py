@@ -47,6 +47,7 @@ if __name__ == '__main__':
     while True:
         try:
             a = app.listen()
+            print a
             res = app.parse(a)
             print res
         except KeyboardInterrupt:
