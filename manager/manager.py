@@ -130,9 +130,15 @@ class Manager:
             url = args[0]
             fname = args[1]
             if fname == 'data.csv':
-                self.database.dump_csv(os.path.join(self.logs_directory, fname))
+                try:
+                    self.database.dump_csv(os.path.join(self.logs_directory, fname))
+                except Exception as e:
+                    self.log_msg("DB    ", "ERROR: %s" % str(e))
             elif fname == 'data.json':
-                self.database.dump_json(os.path.join(self.logs_directory, fname))
+                try:
+                    self.database.dump_json(os.path.join(self.logs_directory, fname))
+                except Exception as e:
+                    self.log_msg("DB    ", "ERROR: %s" % str(e))
             else:
                 self.log_msg("HTTP  ", "WARNING: Unrecognized request" % str(err))
         except Exception as err:
