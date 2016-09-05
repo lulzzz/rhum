@@ -5,6 +5,7 @@
     "gateway_use_checksum" : false,
     "verbose" : true,
     "poll_freq" : 10,
+    "refresh_freq" : 0.01,
     "clean_freq" : 0.0001,
     "cherrypy_path" : "ionic/www",
     "cherrypy_port" : 8080,
