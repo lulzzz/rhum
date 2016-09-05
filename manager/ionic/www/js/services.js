@@ -22,9 +22,7 @@ angular.module('services', [])
             // called asynchronously if an error occurs
             // or server returns response with an error status.
             console.log(response);
-            defer.resolve([
-                {name: "Days", value:1},
-            ]);
+            defer.resolve([]);
         });
         return defer.promise;
     }

@@ -2,13 +2,7 @@ angular.module("controllers", [])
 
 // Basic Settings
 .controller('DashCtrl', function($scope, $http, dashSettings, host_url) {
-    // set up all the sliders with the data grabbed from the server
-    for(var i = 0; i < dashSettings.length; i++){
-        console.log("dashSettings[" + i +"] = "+ dashSettings[i].name);
-        if(dashSettings[i].name == "Days"){
-            $scope.Days = {name: dashSettings[i].name, value:dashSettings[i].value};
-        }
-    }
+    $scope.Days = {name: "Days", value:1};
     $scope.getCSV = function () {
         window.open("http://" + host_url + "/logs/data-" + $scope.Days.value + ".csv");
     }
