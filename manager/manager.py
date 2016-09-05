@@ -129,6 +129,7 @@ class Manager:
         try:
             url = args[0]
             fname = args[1]
+            print url, fname
             if fname == 'data.csv':
                 try:
                     self.log_msg("HTTP  ", "NOTE: Caught request to regen %s" % fname)
