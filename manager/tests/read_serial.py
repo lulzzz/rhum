@@ -16,7 +16,8 @@ if __name__ == '__main__':
     while True:
         try:
             s = app.listen()
-            print s
+            s.rstrip('\n')
+            print s,
         except KeyboardInterrupt:
             break
         except Exception as e:
