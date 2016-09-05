@@ -12,7 +12,7 @@ class Arduino:
         return s
 
 if __name__ == '__main__':
-    app = Arduino(dev=d)
+    app = Arduino()
     while True:
         try:
             s = app.listen()
