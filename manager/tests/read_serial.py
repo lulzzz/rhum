@@ -16,9 +16,7 @@ if __name__ == '__main__':
     while True:
         try:
             s = app.listen()
-            s.rstrip('\n')
-            s.rstrip('\r')
-            sys.stdout.write("\r" + s)
+            sys.stdout.write("\r" + s.rstrip('\n'))
             sys.stdout.flush()
         except KeyboardInterrupt:
             break
