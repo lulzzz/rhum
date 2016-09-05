@@ -12,7 +12,7 @@ angular.module('services', [])
         $http({
             method: 'GET',
             url: "http://" + host_url + "/config",
-            timeout: 3000
+            timeout: 100
         }).then(function successCallback(response) {
             console.log(response);
             // this callback will be called asynchronously
@@ -22,7 +22,9 @@ angular.module('services', [])
             // called asynchronously if an error occurs
             // or server returns response with an error status.
             console.log(response);
-            defer.resolve([]);
+            defer.resolve([
+                {name: "Days", value:1},
+            ]);
         });
         return defer.promise;
     }

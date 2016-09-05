@@ -13,6 +13,8 @@ from cherrypy import tools
 from itertools import cycle
 import tools.CAN as CAN
 import tools.DB as DB
+import fnmatch
+import re
 
 """
 Manager Class
@@ -82,9 +84,6 @@ class Manager:
                 d = self.gateway.poll() # Grab the latest response from the controller
                 if d is not None:
                     self.poll_ok_counter += 1
-                    now = datetime.now()
-                    datetimestamp = datetime.strftime(datetime.now(), self.config['datetime_format']) # grab the current time-stamp for the sample
-                    d['time'] = datetimestamp
                     self.database.store(d)
                 else:
                      self.poll_bad_counter += 1
@@ -129,17 +128,16 @@ class Manager:
         try:
             url = args[0]
             fname = args[1]
-            print url, fname
-            if fname == 'data.csv':
+            if fnmatch.fnmatch(fname, 'data-*.csv'):
                 try:
                     self.log_msg("HTTP  ", "NOTE: Caught request to regen %s" % fname)
-                    self.database.dump_csv(os.path.join(self.logs_directory, fname))
+                    self.database.dump_csv(os.path.join(self.logs_directory, fname), days=int(re.findall(r'\d+', fname)[0]))
                 except Exception as e:
                     self.log_msg("DB    ", "ERROR: %s" % str(e))
-            elif fname == 'data.json':
+            elif fnmatch.fnmatch(fname, 'data-*.json'):
                 try:
                     self.log_msg("HTTP  ", "NOTE: Caught request to regen %s" % fname)
-                    self.database.dump_json(os.path.join(self.logs_directory, fname))
+                    self.database.dump_json(os.path.join(self.logs_directory, fname), days=int(re.findall(r'\d+', fname)[0]))
                 except Exception as e:
                     self.log_msg("DB    ", "ERROR: %s" % str(e))
             else:

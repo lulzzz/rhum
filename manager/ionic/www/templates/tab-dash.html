@@ -7,6 +7,12 @@
     </div>
     <div class="card">
       <ion-list>
+          <ion-item>
+            <center><label class="label item-accordion"> Days </label></center>
+            <div class="item range range-dark">
+              <input type="range" ng-model="Days.value" min="1" max="14" value="{{Days.value}}"> {{Days.value}}
+            </div>
+          </ion-item>
         <div class="item-divider">
       </ion-list>
     <div class="item">
