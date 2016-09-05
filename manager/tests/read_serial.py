@@ -17,6 +17,7 @@ if __name__ == '__main__':
         try:
             s = app.listen()
             s.rstrip('\n')
+            s.rstrip('\r')
             print s,
         except KeyboardInterrupt:
             break
