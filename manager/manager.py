@@ -89,11 +89,12 @@ class Manager:
                 else:
                      self.poll_bad_counter += 1
             except Exception as e:
+                self.poll_bad_counter += 1
                 self.log_msg("CANBUS", "WARNING: %s" % str(e))
         else:
             self.poll_bad_counter += 1
         if self.poll_bad_counter + self.poll_ok_counter == 100:
-            self.log_msg("CANBUS", "NOTE: Gateway read ratio: %d / %d" % (self.poll_ok_counter, self.poll_bad_counter))
+            self.log_msg("CANBUS", "NOTE: Gateway Fail Ratio: %d/%d" % (self.poll_bad_counter, self.poll_bad_counter + self.poll_ok_counter))
             self.poll_ok_counter = 0
             self.poll_bad_counter = 0
 
