@@ -142,7 +142,7 @@ class Manager:
                 except Exception as e:
                     self.log_msg("DB    ", "ERROR: %s" % str(e))
             else:
-                self.log_msg("HTTP  ", "WARNING: Unrecognized request" % str(err))
+                self.log_msg("HTTP  ", "ERROR: Unrecognized request")
         except Exception as err:
             self.log_msg("HTTP  ", "WARNING: %s" % str(err))
         return None
