@@ -1,7 +1,7 @@
 import serial
 import json
-import ast
 import time
+import sys
 
 class Arduino:
     def __init__(self, dev='/dev/ttyACM0', baud=38400):
@@ -18,7 +18,8 @@ if __name__ == '__main__':
             s = app.listen()
             s.rstrip('\n')
             s.rstrip('\r')
-            print s,
+            sys.stdout.write("\r" + s)
+            sys.stdout.flush()
         except KeyboardInterrupt:
             break
         except Exception as e:
