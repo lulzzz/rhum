@@ -72,24 +72,25 @@ void loop() {
     /*
      * TODO
      */
-     
-    // Read from network
-    StaticJsonBuffer<JSON_LENGTH> json_buffer;
-    JsonObject& root = json_buffer.createObject();
-    if (msg == GET_RESPONSE) {
-      if (nt == MOISTURE_CONTROL_V1) {
-        char moisture_buf[16];
-        char temperature_buf[16];
-        sprintf(moisture_buf, "%d.%d", canbus_rx_buffer[4], canbus_rx_buffer[5]);
-        sprintf(temperature_buf, "%d.%d", canbus_rx_buffer[6], canbus_rx_buffer[7]);
-        root["moisture"] = atof(moisture_buf);
-        root["temperature"] = atof(temperature_buf);
+    if (UID != 0) {
+      // Read from network
+      StaticJsonBuffer<JSON_LENGTH> json_buffer;
+      JsonObject& root = json_buffer.createObject();
+      if (msg == GET_RESPONSE) {
+        if (nt == MOISTURE_CONTROL_V1) {
+          char moisture_buf[16];
+          char temperature_buf[16];
+          sprintf(moisture_buf, "%d.%d", canbus_rx_buffer[4], canbus_rx_buffer[5]);
+          sprintf(temperature_buf, "%d.%d", canbus_rx_buffer[6], canbus_rx_buffer[7]);
+          root["moisture"] = atof(moisture_buf);
+          root["temperature"] = atof(temperature_buf);
+        }
       }
+      root.printTo(data_buffer, sizeof(data_buffer));
+      int chksum = checksum(data_buffer);
+      sprintf(output_buffer, "{\"data\":%s,\"chksum\":%d,\"msg\":%d,\"nt\":%d,\"sn\":%d,\"id\":%d}", data_buffer, chksum, msg, nt, sn, id);
+      Serial.println(output_buffer);
     }
-    root.printTo(data_buffer, sizeof(data_buffer));
-    int chksum = checksum(data_buffer);
-    sprintf(output_buffer, "{\"data\":%s,\"chksum\":%d,\"msg\":%d,\"nt\":%d,\"sn\":%d,\"id\":%d}", data_buffer, chksum, msg, nt, sn, id);
-    Serial.println(output_buffer);
   }
 }
 
