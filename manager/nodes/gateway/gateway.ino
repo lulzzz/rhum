@@ -7,8 +7,10 @@
 #include <ArduinoJson.h>
 #include "stdio.h"
 
-/* --- Global --- */
+/* --- Prototypes --- */
+int checksum(char *buf);
 
+/* --- Global --- */
 // Constants
 const unsigned int OUTPUT_LENGTH = 256;
 const unsigned int DATA_LENGTH = 128;
