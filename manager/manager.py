@@ -90,6 +90,8 @@ class Manager:
                     self.active_nodes.append(uid)
                 else:
                      self.poll_bad_counter += 1
+            except ValueError as e:
+                pass
             except Exception as e:
                 self.poll_bad_counter += 1
                 self.log_msg("CANBUS", "WARNING: %s" % str(e))
