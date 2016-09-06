@@ -86,7 +86,6 @@ class Manager:
                 if d is not None:
                     self.poll_ok_counter += 1
                     self.database.store(d)
-                    print d
                     uid = format(d['nt'], '02x') + '-' + format(d['sn'], '02x') + '-' + format(d['id'], '02x')
                     self.active_nodes.append(uid)
                 else:
