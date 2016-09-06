@@ -133,6 +133,7 @@ class Manager:
         This function is basically the API
         """
         try:
+            print args, kwargs
             url = args[0]
             fname = args[1]
             if fnmatch.fnmatch(fname, 'data-*.csv'):
