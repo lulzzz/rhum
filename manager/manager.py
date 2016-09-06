@@ -85,7 +85,7 @@ class Manager:
                 if d is not None:
                     self.poll_ok_counter += 1
                     self.database.store(d)
-                    print d
+                    print d['sn'], d['data']
                 else:
                      self.poll_bad_counter += 1
             except Exception as e:
