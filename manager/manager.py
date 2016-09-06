@@ -32,6 +32,7 @@ class Manager:
                 pass
             self.poll_bad_counter = 0
             self.poll_ok_counter = 0
+            self.active_nodes = []
         except Exception as error:
             self.log_msg('ENGINE', 'ERROR: %s' % str(error))
 
@@ -86,6 +87,8 @@ class Manager:
                     self.poll_ok_counter += 1
                     self.database.store(d)
                     print d['sn'], d['data']
+                    uid = str(d['nt']) + '-' + str(d['sn'])
+                    self.active_nodes.append(uid)
                 else:
                      self.poll_bad_counter += 1
             except Exception as e:
@@ -97,6 +100,8 @@ class Manager:
             self.log_msg("CANBUS", "NOTE: Gateway read-failure rate: %d%%" % (self.poll_bad_counter))
             self.poll_ok_counter = 0
             self.poll_bad_counter = 0
+            self.log_msg("CANBUS", "NOTE: Active nodes: %s" % str(list(set(self.active_nodes))))
+            self.active_nodes = []
 
     def clean(self):
         try:
