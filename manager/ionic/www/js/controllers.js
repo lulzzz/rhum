@@ -4,8 +4,8 @@ angular.module("controllers", [])
 .controller('DashCtrl', function($scope, $http, dashSettings, host_url) {
     $scope.Days = {name: "Days", value:1};
     $scope.setRange = function () {
-        $.get("regen/" + $scope.Days.value, function(data) {
-          alert( "Load was performed!");
+        $http.post("regen", {range : $scope.Days.value}).then(function (res) {
+            alert( "Load was performed!");
         });
     }
     $scope.getCSV = function () {
