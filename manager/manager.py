@@ -133,12 +133,10 @@ class Manager:
         This function is basically the API
         """
         try:
-            action = args[0]
-            value = args[1]
-            if action == 'regen':
+            if args[0] == 'regen':
                 try:
-                    self.log_msg("HTTP  ", "NOTE: Request to regenerate range: %s" % value)
-                    self.database.dump_csv(os.path.join(self.logs_directory, value), days=int(value))
+                    self.log_msg("HTTP  ", "NOTE: Request to regenerate range: %s" % kwargs['range'])
+                    self.database.dump_csv(os.path.join(self.logs_directory, kwargs['range']), days=int(kwargs['range']))
                 except Exception as e:
                     self.log_msg("DB    ", "ERROR: %s" % str(e))
             else:
