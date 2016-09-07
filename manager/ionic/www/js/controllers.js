@@ -4,7 +4,7 @@ angular.module("controllers", [])
 .controller('DashCtrl', function($scope, $http, dashSettings, host_url) {
     $scope.Days = {name: "Days", value:1};
     $scope.setRange = function () {
-        $http.post("regen", {range : $scope.Days.value}).then(function (res) {
+        $http.post("regen/" + $scope.Days.value, {}).then(function (res) {
             alert( "Load was performed!");
         });
     }
