@@ -52,11 +52,16 @@ class CircularDB:
             with open(filepath, 'w') as csvfile:
                 results = self.data_collection.find({'time': {'$gte': self.then, '$lt': self.now}})
                 for doc in results:
-                    del doc['_id']
                     doc['time'] = datetime.strftime(doc['time'], datetime_format)
                     doc['data'] = doc['data'].values()
-                    f = reduce(lambda x,y: x+y, doc.values())
-                    a = [str(i) for i in f]
+                    values = [
+                        doc['time'],
+                        doc['nt'],
+                        doc['sn'],
+                        doc['id'],
+                        ','.join([str(i) for i in doc['data'].values()])
+                    ]
+                    a = [str(v) for v in values]
                     a.append('\r\n')
                     out = ','.join(a)
                     csvfile.write(out)
