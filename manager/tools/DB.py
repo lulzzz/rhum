@@ -53,6 +53,7 @@ class CircularDB:
                 results = self.data_collection.find({'time': {'$gte': self.then, '$lt': self.now}})
                 for doc in results:
                     try:
+                        print doc
                         doc['time'] = datetime.strftime(doc['time'], datetime_format)
                         values = [
                             doc['time'],
