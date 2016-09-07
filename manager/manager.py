@@ -136,7 +136,7 @@ class Manager:
             if args[0] == 'regen':
                 try:
                     self.log_msg("HTTP  ", "NOTE: Request to regenerate range: %s" % args[1])
-                    self.database.dump_csv(os.path.join(self.logs_directory, args[1]), days=int(args[1]))
+                    self.database.dump_csv(os.path.join(self.logs_directory, 'data-' + str(args[1]) + '.csv'), days=int(args[1]))
                 except Exception as e:
                     self.log_msg("DB    ", "ERROR: %s" % str(e))
             else:

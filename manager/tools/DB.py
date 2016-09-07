@@ -62,7 +62,6 @@ class CircularDB:
                             ','.join([str(i) for i in doc['data'].values()])
                         ]
                         a = [str(v) for v in values]
-                        print a
                         a.append('\r\n')
                         out = ','.join(a)
                         csvfile.write(out)
