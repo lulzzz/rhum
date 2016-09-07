@@ -52,18 +52,21 @@ class CircularDB:
             with open(filepath, 'w') as csvfile:
                 results = self.data_collection.find({'time': {'$gte': self.then, '$lt': self.now}})
                 for doc in results:
-                    doc['time'] = datetime.strftime(doc['time'], datetime_format)
-                    values = [
-                        doc['time'],
-                        doc['nt'],
-                        doc['sn'],
-                        doc['id'],
-                        ','.join([str(i) for i in doc['data'].values()])
-                    ]
-                    a = [str(v) for v in values]
-                    a.append('\r\n')
-                    out = ','.join(a)
-                    csvfile.write(out)
+                    try:
+                        doc['time'] = datetime.strftime(doc['time'], datetime_format)
+                        values = [
+                            doc['time'],
+                            doc['nt'],
+                            doc['sn'],
+                            doc['id'],
+                            ','.join([str(i) for i in doc['data'].values()])
+                        ]
+                        a = [str(v) for v in values]
+                        a.append('\r\n')
+                        out = ','.join(a)
+                        csvfile.write(out)
+                    except:
+                        pass
         except Exception as e:
             raise e
 
