@@ -3,6 +3,11 @@ angular.module("controllers", [])
 // Basic Settings
 .controller('DashCtrl', function($scope, $http, dashSettings, host_url) {
     $scope.Days = {name: "Days", value:1};
+    $scope.setRange = function () {
+        $.get("regen/" + $scope.Days.value, function(data) {
+          alert( "Load was performed!");
+        });
+    }
     $scope.getCSV = function () {
         window.location = "http://" + host_url + "/logs/data-" + $scope.Days.value + ".csv";
     }

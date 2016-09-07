@@ -133,19 +133,12 @@ class Manager:
         This function is basically the API
         """
         try:
-            print args, kwargs
-            url = args[0]
-            fname = args[1]
-            if fnmatch.fnmatch(fname, 'data-*.csv'):
+            action = args[0]
+            value = args[1]
+            if action == 'regen':
                 try:
-                    self.log_msg("HTTP  ", "NOTE: Request to regenerate: %s" % fname)
-                    self.database.dump_csv(os.path.join(self.logs_directory, fname), days=int(re.findall(r'\d+', fname)[0]))
-                except Exception as e:
-                    self.log_msg("DB    ", "ERROR: %s" % str(e))
-            elif fnmatch.fnmatch(fname, 'data-*.json'):
-                try:
-                    self.log_msg("HTTP  ", "NOTE: Request to regenerate: %s" % fname)
-                    self.database.dump_json(os.path.join(self.logs_directory, fname), days=int(re.findall(r'\d+', fname)[0]))
+                    self.log_msg("HTTP  ", "NOTE: Request to regenerate range: %s" % value)
+                    self.database.dump_csv(os.path.join(self.logs_directory, value), days=int(value))
                 except Exception as e:
                     self.log_msg("DB    ", "ERROR: %s" % str(e))
             else:
