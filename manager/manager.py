@@ -134,6 +134,7 @@ class Manager:
         """
         try:
             if args[0] == 'regen':
+                print kwargs
                 try:
                     self.log_msg("HTTP  ", "NOTE: Request to regenerate range: %s" % kwargs['range'])
                     self.database.dump_csv(os.path.join(self.logs_directory, kwargs['range']), days=int(kwargs['range']))
