@@ -65,7 +65,7 @@ class CircularDB:
                         a.append('\r\n')
                         out = ','.join(a)
                         csvfile.write(out)
-                    except Exception as e::
+                    except Exception as e:
                         print str(e)
         except Exception as e:
             raise e
