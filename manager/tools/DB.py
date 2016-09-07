@@ -48,17 +48,15 @@ class CircularDB:
     def dump_csv(self, filepath, days=1, datetime_format="%Y-%m-%d %H:%M:%S"):
         try:
             self.now = datetime.now()
-            print days
             self.then = self.now - timedelta(days=days)
             with open(filepath, 'w') as csvfile:
                 results = self.data_collection.find({'time': {'$gte': self.then, '$lt': self.now}})
                 for doc in results:
-                    print doc
                     del doc['_id']
                     doc['time'] = datetime.strftime(doc['time'], datetime_format)
-                    print doc['data']
-                    f = reduce(lambda x,y: x+y, doc)
-                    a = [str(i) for i in f.values()]
+                    doc['data'] = doc['data'].values()
+                    f = reduce(lambda x,y: x+y, doc.values())
+                    a = [str(i) for i in f]
                     a.append('\r\n')
                     out = ','.join(a)
                     csvfile.write(out)
