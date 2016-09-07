@@ -4,7 +4,7 @@ angular.module("controllers", [])
 .controller('DashCtrl', function($scope, $http, dashSettings, host_url) {
     $scope.Days = {name: "Days", value:1};
     $scope.getCSV = function () {
-        window.open("http://" + host_url + "/logs/data-" + $scope.Days.value + ".csv");
+        window.location = "http://" + host_url + "/logs/data-" + $scope.Days.value + ".csv";
     }
 })
 
@@ -18,6 +18,6 @@ angular.module("controllers", [])
         }
     }
     $scope.getErrors = function () {
-        window.open("http://" + host_url + "/logs/errors.txt");
+        window.location = "http://" + host_url + "/logs/errors.txt";
     }
 });
