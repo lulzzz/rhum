@@ -53,13 +53,13 @@ class CircularDB:
                 results = self.data_collection.find({'time': {'$gte': self.then, '$lt': self.now}})
                 for doc in results:
                     try:
-                        doc[u'time'] = datetime.strftime(doc[u'time'], datetime_format)
+                        doc['time'] = datetime.strftime(doc['time'], datetime_format)
                         values = [
-                            doc[u'time'],
-                            doc[u'nt'],
-                            doc[u'sn'],
-                            doc[u'id'],
-                            ','.join([str(i) for i in doc[u'data'].values()])
+                            doc['time'],
+                            doc['nt'],
+                            doc['sn'],
+                            doc['id'],
+                            ','.join([str(i) for i in doc['data'].values()])
                         ]
                         a = [str(v) for v in values]
                         a.append('\r\n')
