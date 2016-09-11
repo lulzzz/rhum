@@ -5,7 +5,7 @@ angular.module("controllers", [])
     $scope.Days = {name: "Days", value:1};
     $scope.setRange = function () {
         $http.post("regen/" + $scope.Days.value, {}).then(function (res) {
-            alert( "Load was performed!");
+            alert( "Manager received request to generate CSV! This operation may take a moment ...");
         });
     }
     $scope.getCSV = function () {
