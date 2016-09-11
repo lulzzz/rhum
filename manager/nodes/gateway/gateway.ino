@@ -80,12 +80,10 @@ void loop() {
       JsonObject& root = json_buffer.createObject();
       if (msg == GET_RESPONSE) {
         if (nt == MOISTURE_CONTROL_V1) {
-          char moisture_buf[16];
-          char temperature_buf[16];
-          sprintf(moisture_buf, "%d.%d", canbus_rx_buffer[4], canbus_rx_buffer[5]);
-          sprintf(temperature_buf, "%d.%d", canbus_rx_buffer[6], canbus_rx_buffer[7]);
-          root["moisture"] = atof(moisture_buf);
-          root["temperature"] = atof(temperature_buf);
+          root["moisture"] = canbus_rx_buffer[4];
+          root["irrigating"] = canbus_rx_buffer[5];
+          root["temperature"] = canbus_rx_buffer[6];
+          root["cooling"] = canbus_rx_buffer[7];
         }
       }
       root.printTo(data_buffer, sizeof(data_buffer));

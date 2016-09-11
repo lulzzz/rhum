@@ -13,7 +13,7 @@
 /* --- Global --- */
 const unsigned int DEVICE_NT = 0x01; // Node Type
 const unsigned int DEVICE_SN = 0x01; // Device Series Number 
-const unsigned int DEVICE_ID = 0x01; // Device Identification Number
+const unsigned int DEVICE_ID = 0x05; // Device Identification Number
 
 // Message Types
 const int GET_REQUEST = 1;
@@ -25,13 +25,13 @@ const int CALIBRATE_RESPONSE = 6;
 
 // IO Pins
 const unsigned int PUMP_RELAY_PIN = 3;
-const unsigned int SOLENOID_RELAY_PIN = 4;
+const unsigned int FAN_RELAY_PIN = 4;
 const unsigned int TEMP_SENSOR_PIN = 5;
 const unsigned int MOISTURE_DO_PIN = 6;
 const unsigned int SENSOR_POWER_PIN = 7; 
 const unsigned int MOISTURE_AO_PIN = 0;
 
-// Etc
+// Et cetera
 const unsigned int SAMPLES = 2;
 const unsigned int OUTPUT_LENGTH = 256;
 const unsigned int CANBUS_LENGTH = 8;
@@ -45,14 +45,20 @@ const unsigned int PRECISION = 2;
 /* --- Variables --- */
 int chksum;
 bool canbus_status = 0;
+bool pump_off = false;
+bool fan_off = false;
+bool irrigation_required = false;
+bool cooling_required = false;
 int moisture_sp_low = 20;
-int moisture_sp_high = 70;
-int temperature_sp_low = 0;
-int temperature_sp_high = 100;
+int moisture_sp_high = 40;
+int temperature_sp_low = 20;
+int temperature_sp_high = 25;
+int temperature_pv = 0;
 int volts_a = 1024;
 int volts_b = 0;
 int moisture_a = 0;
 int moisture_b = 100;
+int moisture_pv = 0;
 
 // Buffers
 char output_buffer[OUTPUT_LENGTH];
@@ -79,47 +85,73 @@ void setup() {
     canbus_status = Canbus.init(CANSPEED_500);
     delay(10);
   }
-  Serial.println(canbus_status);
-
+  
   // Sensors
   ds18b20.begin();
-
+  pinMode(SENSOR_POWER_PIN, OUTPUT); // provide power to the moisture sensor
+  digitalWrite(SENSOR_POWER_PIN, HIGH);
+  
   // Relays
   pinMode(PUMP_RELAY_PIN, OUTPUT);
-  pinMode(SOLENOID_RELAY_PIN, OUTPUT);
-  pinMode(SENSOR_POWER_PIN, OUTPUT);
-  digitalWrite(SENSOR_POWER_PIN, HIGH);
+  pinMode(FAN_RELAY_PIN, OUTPUT);
+  digitalWrite(PUMP_RELAY_PIN, pump_off);
+  digitalWrite(FAN_RELAY_PIN, fan_off);
+
 }
 
 /* --- Loop --- */
 void loop() {
   
-  // Check Sensors
+  // Check Moisture Sensor and Set Irrigation Pump (Dual Threshold Method) 
   float moisture_value = getMoistureContent(MOISTURE_AO_PIN);
   moisture_history.add(moisture_value);
-  int moisture_pv = moisture_history.getAverage();
+  moisture_pv = moisture_history.getAverage();
+  if (irrigation_required) {
+    if (moisture_pv >= moisture_sp_high) {
+      pump_off = true;
+      irrigation_required = false;
+    }
+    else {
+      pump_off = false;
+    }
+  }
+  else {
+    if (moisture_pv < moisture_sp_low) {
+      pump_off = false;
+      irrigation_required = true;
+    }
+    else {
+      pump_off = true;
+    }
+  }
+  digitalWrite(PUMP_RELAY_PIN, pump_off);
+  
+  // Check Temperature Sensor and Set Cooling Fan (Dual Threshold Method)
   ds18b20.requestTemperatures();
   float temperature_value = ds18b20.getTempCByIndex(0);
   temperature_history.add(temperature_value);
-  float temperature_pv = temperature_history.getAverage();
-
-  // Set Relays (LOW THRESHOLD ONLY)
-  if (moisture_pv < moisture_sp_low) {
-    digitalWrite(PUMP_RELAY_PIN, HIGH);
+  temperature_pv = int(temperature_history.getAverage());
+  if (cooling_required) {
+    if (temperature_pv < temperature_sp_low) {
+      fan_off = true;
+      cooling_required = false;
+    }
+    else {
+      fan_off = false;
+    }
   }
   else {
-    digitalWrite(PUMP_RELAY_PIN, LOW);
+    if (temperature_pv >= temperature_sp_high) {
+      fan_off = false;
+      cooling_required = true;
+    }
+    else {
+      fan_off = true;
+    }
   }
+  digitalWrite(FAN_RELAY_PIN, fan_off);
 
   // CANBUS
-  int moisture_sp_low_int = getIntegerPart(moisture_sp_low);
-  int moisture_sp_low_frac = getFractionalPart(moisture_sp_low);
-  int moisture_sp_high_int = getIntegerPart(moisture_sp_high);
-  int moisture_sp_high_frac = getFractionalPart(moisture_sp_high);
-  int moisture_pv_int = getIntegerPart(moisture_pv);
-  int moisture_pv_frac = getFractionalPart(moisture_pv); 
-  int temperature_pv_int = getIntegerPart(temperature_pv);
-  int temperature_pv_frac = getFractionalPart(temperature_pv);
   unsigned int UID = Canbus.message_rx(canbus_rx_buffer); // Check to see if we have a message on the Bus
   int message_type = canbus_rx_buffer[0];
   int nt = canbus_rx_buffer[1];
@@ -162,10 +194,10 @@ void loop() {
         canbus_tx_buffer[1] = DEVICE_NT;
         canbus_tx_buffer[2] = DEVICE_SN;
         canbus_tx_buffer[3] = DEVICE_ID;
-        canbus_tx_buffer[4] = moisture_pv_int;
-        canbus_tx_buffer[5] = moisture_pv_frac; 
-        canbus_tx_buffer[6] = temperature_pv_int;
-        canbus_tx_buffer[7] = temperature_pv_frac;
+        canbus_tx_buffer[4] = moisture_pv;
+        canbus_tx_buffer[5] = !pump_off; 
+        canbus_tx_buffer[6] = temperature_pv;
+        canbus_tx_buffer[7] = !fan_off;
       default:
         break;  
     }
@@ -175,27 +207,25 @@ void loop() {
     canbus_tx_buffer[1] = DEVICE_NT;
     canbus_tx_buffer[2] = DEVICE_SN;
     canbus_tx_buffer[3] = DEVICE_ID;
-    canbus_tx_buffer[4] = moisture_pv_int;
-    canbus_tx_buffer[5] = moisture_pv_frac; 
-    canbus_tx_buffer[6] = temperature_pv_int;
-    canbus_tx_buffer[7] = temperature_pv_frac;
+    canbus_tx_buffer[4] = moisture_pv;
+    canbus_tx_buffer[5] = !pump_off; 
+    canbus_tx_buffer[6] = temperature_pv;
+    canbus_tx_buffer[7] = !fan_off;
   }
   Canbus.message_tx(DEVICE_ID, canbus_tx_buffer); // Push to CAN
 
   // Print Data to JSON Buffer
   StaticJsonBuffer<JSON_LENGTH> json_buffer;
   JsonObject& root = json_buffer.createObject();
-  char temperature_buffer[50];
-  char moisture_buffer[50];
-  sprintf(temperature_buffer, "%d.%d", temperature_pv_int, temperature_pv_frac);
-  sprintf(moisture_buffer, "%d.%d", moisture_pv_int, moisture_pv_frac);
-  root["temperature"] = temperature_buffer;
-  root["moisture"] = moisture_buffer;
-  root["moisture_low"] = moisture_sp_low;
-  root["moisture_high"] = moisture_sp_high;
-  root["temperature_low"] = temperature_sp_low;
-  root["temperature_high"] = temperature_sp_high;
-
+  root["temp"] = temperature_pv;
+  root["ec"] = moisture_pv;
+  root["ec_low"] = moisture_sp_low;
+  root["ec_high"] = moisture_sp_high;
+  root["temp_low"] = temperature_sp_low;
+  root["temp_high"] = temperature_sp_high;
+  root["temp_high"] = temperature_sp_high;
+  root["irrigating"] = !pump_off;
+  root["cooling"] = !fan_off;
   root.printTo(data_buffer, sizeof(data_buffer));
   int chksum = checksum(data_buffer);
   sprintf(output_buffer, "{\"data\":%s,\"chksum\":%d,\"sn\":%d,\"id\":%d,\"nt\":%d}", data_buffer, chksum, DEVICE_SN, DEVICE_ID, DEVICE_NT);
