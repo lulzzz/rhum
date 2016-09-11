@@ -8,10 +8,10 @@ angular.module("controllers", [])
             $http.post("regen/" + $scope.Days.value, {}).then(function (res) {});
         }, 5000);
         alert( "Manager received request to generate CSV! This operation may take a moment ...");
-        window.location = "http://" + host_url + "/logs/data-" + $scope.Days.value + ".csv";
+        window.location = "http://" + host_url + "/logs/data-" + $scope.Days.value + ".csv" + "?dummy=" + Math.floor(Math.random() * 10000;
     }
     $scope.getErrors = function () {
-        window.location = "http://" + host_url + "/logs/errors.txt";
+        window.location = "http://" + host_url + "/logs/errors.txt" + "?dummy=" + Math.floor(Math.random() * 10000;
     }
 })
 
