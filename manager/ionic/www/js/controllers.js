@@ -4,11 +4,11 @@ angular.module("controllers", [])
 .controller('DashCtrl', function($scope, $http, dashSettings, host_url) {
     $scope.Days = {name: "Days", value:1};
     $scope.getCSV = function () {
-        $http.post("regen/" + $scope.Days.value, {}).then(function (res) {
-            setTimeout(function(){}, 5000);
-            alert( "Manager received request to generate CSV! This operation may take a moment ...");
-            window.location = "http://" + host_url + "/logs/data-" + $scope.Days.value + ".csv";
-        });
+        setTimeout(function(){
+            $http.post("regen/" + $scope.Days.value, {}).then(function (res) {});
+        }, 5000);
+        alert( "Manager received request to generate CSV! This operation may take a moment ...");
+        window.location = "http://" + host_url + "/logs/data-" + $scope.Days.value + ".csv";
     }
     $scope.getErrors = function () {
         window.location = "http://" + host_url + "/logs/errors.txt";
