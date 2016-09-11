@@ -7,7 +7,7 @@ angular.module("controllers", [])
         $http.post("regen/" + $scope.Days.value, {}).then(function (res) {});
         alert( "Manager received request to generate CSV! This operation may take a moment.");
     }
-    $scope.getCSVregenCSV = function () {
+    $scope.getCSV = function () {
         window.location = "http://" + host_url + "/logs/data-" + $scope.Days.value + ".csv";
     }
     $scope.getErrors = function () {
