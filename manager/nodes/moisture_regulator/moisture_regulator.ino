@@ -38,7 +38,7 @@ const unsigned int CANBUS_LENGTH = 8;
 const unsigned int DATA_LENGTH = 128;
 const unsigned int BAUD = 38400;
 const unsigned int JSON_LENGTH = 256;
-const unsigned int LOOP_INTERVAL = 1000;
+const unsigned int UPDATE_INTERVAL = 15000;
 const unsigned int DIGITS = 2;
 const unsigned int PRECISION = 2;
 
@@ -49,10 +49,10 @@ bool pump_off = false;
 bool fan_off = false;
 bool irrigation_required = false;
 bool cooling_required = false;
-int moisture_sp_low = 20;
-int moisture_sp_high = 40;
-int temperature_sp_low = 20;
-int temperature_sp_high = 25;
+int moisture_sp_low = 30;
+int moisture_sp_high = 60;
+int temperature_sp_low = 25;
+int temperature_sp_high = 35;
 int temperature_pv = 0;
 int volts_a = 1024;
 int volts_b = 0;
@@ -232,7 +232,7 @@ void loop() {
   Serial.println(output_buffer);
 
   // Wait
-  delay(LOOP_INTERVAL);
+  delay(UPDATE_INTERVAL);
 }
 
 /* --- Functions --- */
