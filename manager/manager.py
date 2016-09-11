@@ -142,8 +142,12 @@ class Manager:
                     self.log_msg("HTTP  ", "NOTE: CSV generation complete! Took %d ms" % int((b - a) * 1000)) 
                 except Exception as e:
                     self.log_msg("DB    ", "ERROR: %s" % str(e))
+            elif args[0] == 'cordova.js':
+                self.log_msg("HTTP  ", "NOTE: Rendering with Cordova ... ')
+            elif args[0] == 'config':
+                self.log_msg("HTTP  ", "NOTE: Loading app config ... ')
             else:
-                self.log_msg("HTTP  ", "WARNING: No API handler: %s" % str(args[0]))
+                self.log_msg("HTTP  ", "WARNING: No API handler for: %s" % str(args[0]))
         except Exception as err:
             self.log_msg("HTTP  ", "ERROR: %s" % str(err))
         return None
