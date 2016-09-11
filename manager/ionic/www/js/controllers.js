@@ -11,7 +11,7 @@ angular.module("controllers", [])
         window.location = "http://" + host_url + "/logs/data-" + $scope.Days.value + ".csv" + "?dummy=" + Math.floor(Math.random() * 10000);
     }
     $scope.getErrors = function () {
-        window.location = "http://" + host_url + "/logs/errors.txt" + "?dummy=" + Math.floor(Math.random() * 10000;
+        window.location = "http://" + host_url + "/logs/errors.txt" + "?dummy=" + Math.floor(Math.random() * 10000);
     }
 })
 
