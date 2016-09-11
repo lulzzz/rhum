@@ -32,7 +32,7 @@ const unsigned int SENSOR_POWER_PIN = 7;
 const unsigned int MOISTURE_AO_PIN = 0;
 
 // Et cetera
-const unsigned int SAMPLES = 2;
+const unsigned int SAMPLES = 9;
 const unsigned int OUTPUT_LENGTH = 256;
 const unsigned int CANBUS_LENGTH = 8;
 const unsigned int DATA_LENGTH = 128;
@@ -102,9 +102,10 @@ void setup() {
 /* --- Loop --- */
 void loop() {
   
-  // Check Moisture Sensor and Set Irrigation Pump (Dual Threshold Method) 
-  float moisture_value = getMoistureContent(MOISTURE_AO_PIN);
-  moisture_history.add(moisture_value);
+  // Check Moisture Sensor and Set Irrigation Pump (Dual Threshold Method)
+  for (int i = 0; i < SAMPLES; i++) {
+    moisture_history.add(getMoistureContent(MOISTURE_AO_PIN));
+  }
   moisture_pv = moisture_history.getAverage();
   if (irrigation_required) {
     if (moisture_pv >= moisture_sp_high) {
@@ -127,9 +128,10 @@ void loop() {
   digitalWrite(PUMP_RELAY_PIN, pump_off);
   
   // Check Temperature Sensor and Set Cooling Fan (Dual Threshold Method)
-  ds18b20.requestTemperatures();
-  float temperature_value = ds18b20.getTempCByIndex(0);
-  temperature_history.add(temperature_value);
+  for (int i = 0; i < SAMPLES; i++) {
+    ds18b20.requestTemperatures();
+    temperature_history.add(ds18b20.getTempCByIndex(0));
+  }
   temperature_pv = int(temperature_history.getAverage());
   if (cooling_required) {
     if (temperature_pv < temperature_sp_low) {
@@ -163,6 +165,8 @@ void loop() {
         // Move setpoint variables to new thresholds
         moisture_sp_low = canbus_tx_buffer[4];
         moisture_sp_high = canbus_tx_buffer[5];
+        temperature_sp_low = canbus_tx_buffer[6];
+        temperature_sp_high = canbus_tx_buffer[7];
         // Create response
         canbus_tx_buffer[0] = SET_RESPONSE;
         canbus_tx_buffer[1] = DEVICE_NT;
