@@ -1,26 +1,21 @@
 <ion-view view-title="Data">
   <ion-content class="padding">
     <div class="card">
-        <center> Recirculating Hydroponic Universal Manager (RHUM)</center>
-        <center> McGill University, Department of Bioresource Engineering </center>
-        <center> Developed by Trevor Stanhope </center>
-    </div>
-    <div class="card">
-      <ion-list>
-          <ion-item>
-            <center><label class="label item-accordion"> Days </label></center>
-            <div class="item range range-dark">
-              <input type="range" ng-model="Days.value" min="1" max="14" value="{{Days.value}}"> {{Days.value}}
-            </div>
-          </ion-item>
-        <div class="item-divider">
-      </ion-list>
-    <div class="item">
-        <button class="button button-full button-balanced" ng-click="setRange()">Set Time Range</button>
-    </div>
-    <div class="item">
-        <button class="button button-full button-positive" ng-click="getCSV()">Download CSV</button>
-    </div>
+          <ion-list>
+              <ion-item>
+                <center><label class="label item-accordion"> Days </label></center>
+                <div class="item range range-dark">
+                  <input type="range" ng-model="Days.value" min="1" max="14" value="{{Days.value}}"> {{Days.value}}
+                </div>
+              </ion-item>
+            <div class="item-divider">
+          </ion-list>
+        <div class="item">
+            <button class="button button-full button-balanced" ng-click="getCSV()">Download Data CSV</button>
+        </div>
+        <div class="item">
+            <button class="button button-full button-energized" ng-click="getErrors()">Download Errors Log</button>
+        </div>
     </div>
   </ion-content>
 </ion-view>
