@@ -136,7 +136,10 @@ class Manager:
             if args[0] == 'regen':
                 try:
                     self.log_msg("HTTP  ", "NOTE: Request to regenerate range: %s" % args[1])
+                    a = time.time()
                     self.database.dump_csv(os.path.join(self.logs_directory, 'data-' + str(args[1]) + '.csv'), days=int(args[1]))
+                    b = time.time()
+                    self.log_msg("HTTP  ", "NOTE: CSV generation complete! Took %d ms" % int((b - a) * 1000)) 
                 except Exception as e:
                     self.log_msg("DB    ", "ERROR: %s" % str(e))
             else:
