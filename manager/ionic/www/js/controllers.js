@@ -5,11 +5,10 @@ angular.module("controllers", [])
     $scope.Days = {name: "Days", value:1};
     $scope.getCSV = function () {
         $http.post("regen/" + $scope.Days.value, {}).then(function (res) {
+            setTimeout(function(){}, 5000);
             alert( "Manager received request to generate CSV! This operation may take a moment ...");
+            window.location = "http://" + host_url + "/logs/data-" + $scope.Days.value + ".csv";
         });
-        setTimeout(function(){}, 5000);
-        alert( "Generated CSV! ...");
-        window.location = "http://" + host_url + "/logs/data-" + $scope.Days.value + ".csv";
     }
     $scope.getErrors = function () {
         window.location = "http://" + host_url + "/logs/errors.txt";
