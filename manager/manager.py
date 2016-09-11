@@ -98,7 +98,7 @@ class Manager:
         else:
             self.poll_bad_counter += 1
         if self.poll_bad_counter + self.poll_ok_counter == self.config['poll_samples']:
-            self.log_msg("CANBUS", "NOTE: Gateway read-failure rate: %d% out of %d" % (self.poll_bad_counter, self.poll_ok_counter + self.poll_bad_counter))
+            self.log_msg("CANBUS", "NOTE: Gateway read-failure rate: %d out of %d" % (self.poll_bad_counter, self.poll_ok_counter + self.poll_bad_counter))
             self.poll_ok_counter = 0
             self.poll_bad_counter = 0
             self.log_msg("CANBUS", "NOTE: Active nodes: %s" % str(list(set(self.active_nodes))))
@@ -143,9 +143,9 @@ class Manager:
                 except Exception as e:
                     self.log_msg("DB    ", "ERROR: %s" % str(e))
             elif args[0] == 'cordova.js':
-                self.log_msg("HTTP  ", "NOTE: Rendering with Cordova ... ")
+                self.log_msg("HTTP  ", "NOTE: Rendering App with Cordova.js ... ")
             elif args[0] == 'config':
-                self.log_msg("HTTP  ", "NOTE: Loading app config ... ")
+                self.log_msg("HTTP  ", "NOTE: Loading App config ... ")
             else:
                 self.log_msg("HTTP  ", "WARNING: No API handler for: %s" % str(args[0]))
         except Exception as err:
