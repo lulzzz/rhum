@@ -33,6 +33,7 @@ class Manager:
             self.log_msg('CANBUS', 'NOTE: Initializing Log-file ...')
             self.poll_bad_counter = 0
             self.poll_ok_counter = 0
+            self.poll_nodata_counter = 0
             self.active_nodes = []
         except Exception as error:
             self.log_msg('ENGINE', 'ERROR: %s' % str(error))
@@ -90,6 +91,7 @@ class Manager:
             try:
                 d = self.gateway.poll() # Grab the latest response from the controller
                 if d is not None:
+                    self.poll_nodata_counter = 0
                     self.poll_ok_counter += 1
                     self.database.store(d)
                     uid = format(d['nt'], '02x') + '-' + format(d['sn'], '02x') + '-' + format(d['id'], '02x')
@@ -97,7 +99,10 @@ class Manager:
                 else:
                     self.poll_bad_counter += 1
             except ValueError as e:
-                self.log_msg("CANBUS", "WARNING: %s" % str(e))
+                self.poll_nodata_counter += 1 # This error occurs when there was no data available from the CAN Gateway, and can be ignored (to a limit)
+                if self.poll_nodata_counter == self.config['poll_nodata_limit']:
+                    self.log_msg("CANBUS", "WARNING: %d iterations without new data! Check Manager's connection to Nodes!" % self.poll_nodata_counter)
+                    self.poll_nodata_counter = 0
             except Exception as e:
                 self.poll_bad_counter += 1
                 self.log_msg("CANBUS", "ERROR: %s" % str(e))
