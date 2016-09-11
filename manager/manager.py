@@ -97,8 +97,8 @@ class Manager:
                 self.log_msg("CANBUS", "WARNING: %s" % str(e))
         else:
             self.poll_bad_counter += 1
-        if self.poll_bad_counter + self.poll_ok_counter == 100:
-            self.log_msg("CANBUS", "NOTE: Gateway read-failure rate: %d%%" % (self.poll_bad_counter))
+        if self.poll_bad_counter + self.poll_ok_counter == self.config['poll_samples']:
+            self.log_msg("CANBUS", "NOTE: Gateway read-failure rate: %d% out of %d" % (self.poll_bad_counter, self.poll_ok_counter + self.poll_bad_counter))
             self.poll_ok_counter = 0
             self.poll_bad_counter = 0
             self.log_msg("CANBUS", "NOTE: Active nodes: %s" % str(list(set(self.active_nodes))))
@@ -143,9 +143,9 @@ class Manager:
                 except Exception as e:
                     self.log_msg("DB    ", "ERROR: %s" % str(e))
             else:
-                self.log_msg("HTTP  ", "ERROR: Unrecognized request")
+                self.log_msg("HTTP  ", "WARNING: No API handler: %s" % str(args[0]))
         except Exception as err:
-            self.log_msg("HTTP  ", "WARNING: %s" % str(err))
+            self.log_msg("HTTP  ", "ERROR: %s" % str(err))
         return None
 
     ## CherryPy Reboot

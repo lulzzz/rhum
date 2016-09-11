@@ -72,6 +72,11 @@ void loop() {
     // Control network via gateway (i.e. write calibration or setpoint values)
     /*
      * TODO
+     * The following features will be added in version 2:
+     * SET_REQUEST
+     * SET_RESPONSE
+     * CALIBRATE_REQUEST
+     * CALIBRATE_RESPONSE
      */
     if (UID != 0) {
       // Read from network

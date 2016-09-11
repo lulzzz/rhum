@@ -13,7 +13,7 @@
 /* --- Global --- */
 const unsigned int DEVICE_NT = 0x01; // Node Type
 const unsigned int DEVICE_SN = 0x01; // Device Series Number 
-const unsigned int DEVICE_ID = 0x05; // Device Identification Number
+const unsigned int DEVICE_ID = 0x04; // Device Identification Number
 
 // Message Types
 const int GET_REQUEST = 1;
