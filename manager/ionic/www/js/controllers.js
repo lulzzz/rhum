@@ -5,7 +5,7 @@ angular.module("controllers", [])
     $scope.Days = {name: "Days", value:1};
     $scope.getCSV = function () {
         $http.post("regen/" + $scope.Days.value, {}).then(function (res) {});
-        alert( "Manager received request to generate CSV! This operation may take a moment ...");
+        alert( "Manager received request to generate CSV! This operation may take a moment.");
     }
     $scope.regenCSV = function () {
         window.location = "http://" + host_url + "/logs/data-" + $scope.Days.value + ".csv";
