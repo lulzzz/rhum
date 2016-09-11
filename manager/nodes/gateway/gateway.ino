@@ -54,7 +54,6 @@ void setup() {
     canbus_status = Canbus.init(CANSPEED_500);
     delay(10);
   }
-  Serial.println(canbus_status);
 }
 
 /* --- Loop --- */
