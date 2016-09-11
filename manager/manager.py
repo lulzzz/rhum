@@ -30,6 +30,7 @@ class Manager:
             self.logfile = os.path.join(self.logs_directory, log)
             with open(self.logfile, 'w') as log:
                 pass
+            self.log_msg('CANBUS', 'NOTE: Initializing Log-file ...')
             self.poll_bad_counter = 0
             self.poll_ok_counter = 0
             self.active_nodes = []
@@ -42,7 +43,7 @@ class Manager:
         except Exception as error:
             self.gateway = None
             self.log_msg('CANBUS', 'ERROR: %s' % str(error))
-        if self.gateway is None: self.log_msg('CANBUS', 'ERROR: No CAN Gateway found!')
+        if self.gateway is None: self.log_msg('CANBUS', 'ERROR: No CAN Gateway found! Check the connection in the Manager!')
 
         try:
             self.log_msg('DB    ', 'NOTE: Initializing Database ...')
@@ -55,8 +56,13 @@ class Manager:
         # Initialize Webapp
         self.log_msg('HTTP  ', 'NOTE: Initializing Run-Time Tasks ...')
         try:
+            self.log_msg('CANBUS', 'NOTE: Polling Frequency set to: %d Hz' % float(self.config['poll_freq']))
             self.poll_task = Monitor(cherrypy.engine, self.poll, frequency=1/float(self.config['poll_freq'])).subscribe()
-            self.clean_task = Monitor(cherrypy.engine, self.clean, frequency=1/float(self.config['clean_freq'])).subscribe()
+            self.log_msg('CANBUS', 'NOTE: Clean-up Interval set to: %d seconds' % float(self.config['clean_interval']))
+            self.clean_task = Monitor(cherrypy.engine, self.clean, frequency=float(self.config['clean_interval'])).subscribe()
+            """
+            TODO: Additional scheduled tasks for network maintenance?
+            """
         except Exception as error:
             self.log_msg('HTTP  ', 'ERROR: %s' % str(error))
 
@@ -89,26 +95,30 @@ class Manager:
                     uid = format(d['nt'], '02x') + '-' + format(d['sn'], '02x') + '-' + format(d['id'], '02x')
                     self.active_nodes.append(uid)
                 else:
-                     self.poll_bad_counter += 1
+                    self.poll_bad_counter += 1
             except ValueError as e:
-                pass
+                self.log_msg("CANBUS", "WARNING: %s" % str(e))
             except Exception as e:
                 self.poll_bad_counter += 1
-                self.log_msg("CANBUS", "WARNING: %s" % str(e))
+                self.log_msg("CANBUS", "ERROR: %s" % str(e))
         else:
             self.poll_bad_counter += 1
         if self.poll_bad_counter + self.poll_ok_counter == self.config['poll_samples']:
             self.log_msg("CANBUS", "NOTE: Gateway read-failure rate: %d out of %d" % (self.poll_bad_counter, self.poll_ok_counter + self.poll_bad_counter))
-            self.poll_ok_counter = 0
-            self.poll_bad_counter = 0
+            if self.poll_bad_counter == self.poll_ok_counter:
+                self.log_msg("CANBUS", "WARNING: No messages on BUS! Check connection to the Gateway!")
             self.log_msg("CANBUS", "NOTE: Active nodes: %s" % str(list(set(self.active_nodes))))
+            self.poll_bad_counter = 0
+            self.poll_ok_counter = 0
             self.active_nodes = []
+
 
     def clean(self):
         try:
+            self.log_msg("DB    ", "WARNING: Executing DB clean ...") 
             self.database.clean()
         except Exception as e:
-            self.log_msg("DB    ", "WARNING: %s" % str(e))
+            self.log_msg("DB    ", "ERROR: %s" % str(e))
 
     def close(self):
         pass
