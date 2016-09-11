@@ -168,6 +168,7 @@ class Manager:
         """
         This function is basically the API
         """
+        self.log_msg("HTTP  ", "WARNING: Executing shutdown of CherryPy3 Server!")
         cherrypy.engine.exit()
     
 if __name__ == '__main__':
