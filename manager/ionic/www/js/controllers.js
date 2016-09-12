@@ -5,13 +5,17 @@ angular.module("controllers", [])
     $scope.Days = {name: "Days", value:1};
     $scope.regenCSV = function () {
         $http.post("regen/" + $scope.Days.value, {}).then(function (res) {});
-        alert( "Manager received request to generate CSV! This operation may take a moment.");
+        alert( "Generating CSV for the past " + $scope.Days.value + " day(s)! This operation may take a moment.");
     }
     $scope.getCSV = function () {
         window.location = "http://" + host_url + "/logs/data-" + $scope.Days.value + ".csv";
     }
     $scope.getErrors = function () {
         window.location = "http://" + host_url + "/logs/errors.txt";
+    }
+    $scope.cleanDB = function () {
+        $http.post("clean/" + $scope.Days.value, {}).then(function (res) {});
+        alert( "Deleting data older than " + $scope.Days.value + " day(s)!");
     }
 })
 

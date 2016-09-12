@@ -3,15 +3,16 @@ from datetime import datetime, timedelta
 import pymongo
 from bson import json_util
 
-class CircularDB:
+class NodeDB:
     """
-    CircularDB Class
+    NodeDB Class
+
+    Designed to hold timestamped data gathered from a network of CAN Nodes
     """
-    def __init__(self, name='default', address="127.0.0.1", port=27017, errors_collection="errors", data_collection="data", cutoff_hours=336):
+    def __init__(self, name='default', address="127.0.0.1", port=27017, errors_collection="errors", data_collection="data"):
         self.name = name
         self.address = address
         self.port = port
-        self.cutoff_hours = cutoff_hours
         self.client = pymongo.MongoClient(self.address, self.port)
         self.database = self.client[self.name]
         self.data_collection = self.database[data_collection]
@@ -71,12 +72,12 @@ class CircularDB:
             raise e
 
     ## Clean
-    def clean(self, cutoff_days=56):
-        if cutoff_hours is not None:
-            cutoff_hours = self.cutoff_hours
+    def clean(self, cutoff_days=28):
         try:
-            cutoff_date = datetime.now() - timedelta(days = cutoff_days)
-            self.data_collection.delete_many({"time": {"$lte": cutoff_date}})
+            self.now = datetime.now()
+            self.then = self.now - timedelta(days=cutoff_days)
+            res = self.data_collection.remove({"time": {"$lte": self.then}})
+            return res[u'n']
         except Exception as e:
             raise e
             

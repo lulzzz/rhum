@@ -48,7 +48,7 @@ class Manager:
 
         try:
             self.log_msg('DB    ', 'NOTE: Initializing Database ...')
-            self.database = DB.CircularDB(port=self.config['db_port'], address=self.config['db_address'], name=self.config['db_name'], cutoff_hours=self.config['db_cutoff_hours'])
+            self.database = DB.NodeDB(port=self.config['db_port'], address=self.config['db_address'], name=self.config['db_name'])
         except Exception as error:
             self.database = None
             self.log_msg('DB    ', 'ERROR: %s' % str(error))
@@ -117,11 +117,11 @@ class Manager:
             self.poll_ok_counter = 0
             self.active_nodes = []
 
-
     def clean(self):
         try:
-            self.log_msg("DB    ", "WARNING: Executing DB clean ...") 
-            self.database.clean()
+            self.log_msg("DB    ", "WARNING: Executing scheduled DB clean-up ...") 
+            docs_deleted = self.database.clean(cutoff_days=self.config['db_cutoff_days'])
+            self.log_msg("DB    ", "NOTE: Deleted: %d docs" % docs_deleted)
         except Exception as e:
             self.log_msg("DB    ", "ERROR: %s" % str(e))
 
@@ -150,11 +150,18 @@ class Manager:
         try:
             if args[0] == 'regen':
                 try:
-                    self.log_msg("HTTP  ", "NOTE: Request to regenerate range: %s" % args[1])
+                    self.log_msg("HTTP  ", "NOTE: Request to regenerate CSV for: %s days" % args[1])
                     a = time.time()
                     self.database.dump_csv(os.path.join(self.logs_directory, 'data-' + str(args[1]) + '.csv'), days=int(args[1]))
                     b = time.time()
                     self.log_msg("HTTP  ", "NOTE: CSV generation complete! Took %d ms" % int((b - a) * 1000)) 
+                except Exception as e:
+                    self.log_msg("DB    ", "ERROR: %s" % str(e))
+            elif args[0] == 'clean':
+                try:
+                    self.log_msg("HTTP  ", "NOTE: Request to clean DB data older than: %s days" % args[1])
+                    docs_deleted = self.database.clean(cutoff_days=int(args[1]))
+                    self.log_msg("DB    ", "NOTE: Deleted: %d docs" % docs_deleted)
                 except Exception as e:
                     self.log_msg("DB    ", "ERROR: %s" % str(e))
             elif args[0] == 'cordova.js':
