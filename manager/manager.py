@@ -57,10 +57,11 @@ class Manager:
         # Initialize Webapp
         self.log_msg('HTTP  ', 'NOTE: Initializing Run-Time Tasks ...')
         try:
-            self.log_msg('CANBUS', 'NOTE: Polling Frequency set to: %d Hz' % float(self.config['poll_freq']))
-            self.poll_task = Monitor(cherrypy.engine, self.poll, frequency=1/float(self.config['poll_freq'])).subscribe()
-            self.log_msg('CANBUS', 'NOTE: Clean-up Interval set to: %d seconds' % float(self.config['clean_interval']))
-            self.clean_task = Monitor(cherrypy.engine, self.clean, frequency=float(self.config['clean_interval'])).subscribe()
+            self.log_msg('CANBUS', 'NOTE: Polling frequency set to: %d Hz' % float(self.config['poll_freq_hz']))
+            self.poll_task = Monitor(cherrypy.engine, self.poll, frequency=1/float(self.config['poll_freq_hz'])).subscribe()
+            self.log_msg('CANBUS', 'NOTE: Auto-clean interval set to: %2.1f hours' % float(self.config['clean_freq_hours']))
+            self.clean_task = Monitor(cherrypy.engine, self.clean, frequency=float(3600 * self.config['clean_freq_hours'])).subscribe()
+            self.log_msg('CANBUS', 'NOTE: Auto-clean cut-off period set to: %d days' % self.config['db_cutoff_days'])
             """
             TODO: Additional scheduled tasks for network maintenance?
             """
